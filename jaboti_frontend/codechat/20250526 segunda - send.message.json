@@ -1,0 +1,26 @@
+{
+  "event": "send.message",
+  "instance": "Jaboti554497618592",
+  "data": {
+    "key": {
+      "remoteJid": "554497618592@s.whatsapp.net",
+      "fromMe": true,
+      "id": "3EB0DE600429D47C64BD99B019C91F0C02F54EFA"
+    },
+    "pushName": "",
+    "status": "PENDING",
+    "message": {
+      "conversation": "Testando a api"
+    },
+    "contextInfo": null,
+    "messageType": "conversation",
+    "messageTimestamp": 1748267673,
+    "instanceId": "46b40e16-21ae-458f-abfe-ae1dc69b4b7b",
+    "source": "unknown"
+  },
+  "destination": "http://192.168.100.46/JaspiZAP.NetEnvironment/WhatsAPI.EvolutionAPIAuth.aspx/send-message",
+  "date_time": "2025-05-26T10:54:34.225Z",
+  "sender": "554497618592@s.whatsapp.net",
+  "server_url": "http://localhost:2525",
+  "apikey": "C2D5FC1F-0D37-4180-ADC8-C25ACA0208E6"
+}

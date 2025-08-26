@@ -1,0 +1,297 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id           Int                 @id @default(autoincrement())
+  name         String              @unique
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+  atendimentos Atendimento[]
+  users        CompanyUser[]
+  departments  Department[]
+  apiUsage     ExternalApiUsage[]
+  fileUploads  FileUpload[]
+  integrations IntegrationConfig[]
+  notes        Note[]
+}
+
+model Pessoa {
+  id                    Int              @id @default(autoincrement()) @map("PesCod")
+  name                  String           @map("PesNom")
+  chatName              String?          @map("PesNomChat")
+  phone                 String?          @map("PesFon") @db.VarChar(30)
+  email                 String?          @unique @map("PesEml") @db.VarChar(120)
+  extCompany            String?          @map("PesExtEmp")
+  extModules            String?          @map("PesExtModSis")
+  type                  PessoaTipo       @map("PesTip")
+  passwordHash          String
+  role                  UserRole         @default(OPERATOR)
+  active                Boolean          @default(true) @map("PesIsAtv")
+  online                Boolean          @default(false) @map("PesIsOnline")
+  lastSeenVersion       String?          @map("PesUltVerVis")
+  photoUrl              String?          @map("PesFoto")
+  updatedAt             DateTime         @updatedAt
+  user                  String?          @unique @map("PesUsr")
+  bairro                String?          @map("PesBai") @db.VarChar(90)
+  cep                   String?          @map("PesCEP") @db.VarChar(12)
+  canalPreferido        CanalPreferido?  @map("PesCanPref")
+  cargo                 String?          @map("PesCar") @db.VarChar(90)
+  cidade                String?          @map("PesCid") @db.VarChar(90)
+  complemento           String?          @map("PesComp") @db.VarChar(60)
+  consenteMarketing     Boolean          @default(false) @map("PesConsMkt")
+  documento             String?          @map("PesDoc") @db.VarChar(40)
+  dataNascimento        DateTime?        @map("PesDtaNasc")
+  empresa               String?          @map("PesEmp") @db.VarChar(140)
+  endereco              String?          @map("PesEnd") @db.VarChar(180)
+  etapa                 LeadStage?       @map("PesEtp")
+  genero                Genero?          @map("PesGen")
+  interesses            Json?            @map("PesInts")
+  numero                String?          @map("PesNum") @db.VarChar(12)
+  observacoes           String?          @map("PesObs")
+  origem                String?          @map("PesOrig") @db.VarChar(60)
+  tipoDocumento         String?          @map("PesTipDoc") @db.VarChar(16)
+  estado                String?          @map("PesUF") @db.VarChar(2)
+  ultimoContatoEm       DateTime?        @map("PesUltCont")
+  whatsappOptIn         Boolean          @default(false) @map("PesWppOptIn")
+  tags                  String[]
+  createdAt             DateTime         @default(now())
+  atendimentosAtendente Atendimento[]    @relation("AtendimentoAttendant")
+  atendimentosCliente   Atendimento[]    @relation("AtendimentoClient")
+  companies             CompanyUser[]
+  departments           DepartmentUser[]
+  messagesAuthored      Message[]        @relation("MessageSenderUser")
+  notesAuthored         Note[]           @relation("NoteAuthor")
+  notesAsClient         Note[]           @relation("NoteClient")
+  refreshTokens         RefreshToken[]
+
+  @@index([type])
+  @@index([online])
+  @@index([documento])
+}
+
+model CompanyUser {
+  companyId Int
+  userId    Int
+  primary   Boolean @default(false)
+  company   Company @relation(fields: [companyId], references: [id])
+  user      Pessoa  @relation(fields: [userId], references: [id])
+
+  @@id([companyId, userId])
+}
+
+model Department {
+  id           Int              @id @default(autoincrement())
+  name         String
+  companyId    Int
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+  atendimentos Atendimento[]
+  company      Company          @relation(fields: [companyId], references: [id])
+  users        DepartmentUser[]
+
+  @@unique([companyId, name])
+  @@index([companyId])
+}
+
+model DepartmentUser {
+  departmentId Int
+  userId       Int
+  department   Department @relation(fields: [departmentId], references: [id])
+  user         Pessoa     @relation(fields: [userId], references: [id])
+
+  @@id([departmentId, userId])
+}
+
+model Atendimento {
+  empresaId        Int
+  id               Int
+  clienteId        Int
+  atendenteId      Int?
+  departamentoId   Int?
+  status           AtendimentoStatus @default(BOT)
+  inicioEm         DateTime          @default(now())
+  fimEm            DateTime?
+  inicioHumanoEm   DateTime?
+  ultimaMensagemEm DateTime?         @default(now())
+  ultimaMensagem   String?           @db.VarChar(500)
+  criadoEm         DateTime          @default(now())
+  atualizadoEm     DateTime          @updatedAt
+  attendant        Pessoa?           @relation("AtendimentoAttendant", fields: [atendenteId], references: [id])
+  client           Pessoa            @relation("AtendimentoClient", fields: [clienteId], references: [id])
+  department       Department?       @relation(fields: [departamentoId], references: [id])
+  company          Company           @relation(fields: [empresaId], references: [id])
+
+
+  @@id([empresaId, id])
+  @@index([empresaId, status])
+  @@index([atendenteId])
+  @@index([departamentoId])
+}
+
+model Message {
+  id                   Int         @id @default(autoincrement())
+  senderType           SenderType
+  content              String?
+  mediaType            String?
+  metadata             Json?
+  timestamp            DateTime    @default(now())
+  editedAt             DateTime?
+  originalContent      String?
+  readAt               DateTime?
+  replyToId            Int?
+  senderUserId         Int?
+  atendimentoEmpresaId Int
+  atendimentoId        Int
+  replyTo              Message?    @relation("MessageReplies", fields: [replyToId], references: [id])
+  replies              Message[]   @relation("MessageReplies")
+  senderUser           Pessoa?     @relation("MessageSenderUser", fields: [senderUserId], references: [id])
+
+  @@index([replyToId])
+  @@index([atendimentoEmpresaId, atendimentoId, timestamp])
+  @@index([atendimentoEmpresaId, atendimentoId])
+}
+
+model Note {
+  id                   Int          @id @default(autoincrement())
+  companyId            Int
+  clientId             Int?
+  authorId             Int
+  content              String?
+  createdAt            DateTime     @default(now())
+  atendimentoEmpresaId Int?
+  atendimentoId        Int?
+  author               Pessoa       @relation("NoteAuthor", fields: [authorId], references: [id])
+  client               Pessoa?      @relation("NoteClient", fields: [clientId], references: [id])
+  company              Company      @relation(fields: [companyId], references: [id])
+
+  @@index([companyId])
+  @@index([authorId])
+  @@index([atendimentoEmpresaId, atendimentoId])
+}
+
+model IntegrationConfig {
+  id          Int               @id @default(autoincrement())
+  companyId   Int
+  platform    Platform
+  apiKey      String
+  status      IntegrationStatus @default(ACTIVE)
+  extraConfig Json?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+  company     Company           @relation(fields: [companyId], references: [id])
+
+  @@unique([companyId, platform])
+  @@index([companyId])
+}
+
+model RefreshToken {
+  id         Int       @id @default(autoincrement())
+  userId     Int
+  tokenHash  String
+  expiresAt  DateTime
+  createdAt  DateTime  @default(now())
+  revokedAt  DateTime?
+  replacedBy Int?
+  user       Pessoa    @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model ExternalApiUsage {
+  id         Int      @id @default(autoincrement())
+  companyId  Int
+  platform   Platform
+  cost       Decimal  @db.Decimal(10, 2)
+  meta       Json?
+  occurredAt DateTime @default(now())
+  company    Company  @relation(fields: [companyId], references: [id])
+
+  @@index([companyId, platform])
+  @@index([occurredAt])
+}
+
+model FileUpload {
+  id           Int      @id @default(autoincrement())
+  filename     String   @unique
+  originalName String
+  mimetype     String
+  size         Int
+  path         String
+  url          String
+  uploadType   String
+  companyId    Int
+  relatedId    Int?
+  relatedType  String?
+  uploadedBy   Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  company      Company  @relation(fields: [companyId], references: [id])
+
+  @@index([companyId])
+  @@index([uploadType])
+  @@index([relatedId, relatedType])
+  @@index([uploadedBy])
+}
+
+enum UserRole {
+  OPERATOR
+  SUPERVISOR
+  ADMIN
+}
+
+enum PessoaTipo {
+  CLIENTE
+  USUARIO
+}
+
+enum AtendimentoStatus {
+  BOT
+  ATIVO
+  ENCERRADO
+  PENDENTE
+}
+
+enum SenderType {
+  CLIENT
+  ATTENDANT
+  BOT
+}
+
+enum Platform {
+  CloudAPI
+  EvolutionAPI
+}
+
+enum IntegrationStatus {
+  ACTIVE
+  INACTIVE
+}
+
+enum Genero {
+  MASCULINO
+  FEMININO
+  OUTRO
+  NAO_INFORMADO
+}
+
+enum LeadStage {
+  LEAD
+  OPORTUNIDADE
+  CLIENTE
+  INATIVO
+}
+
+enum CanalPreferido {
+  WHATSAPP
+  EMAIL
+  TELEFONE
+  SMS
+  OUTRO
+}

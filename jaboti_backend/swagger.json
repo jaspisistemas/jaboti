@@ -1,0 +1,1718 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/pessoas": {
+      "get": {
+        "operationId": "PessoasController_list",
+        "parameters": [
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Busca parcial em name, email, phone",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "tipo",
+            "required": false,
+            "in": "query",
+            "description": "Filtra por tipo (CLIENTE/USUARIO)",
+            "schema": {
+              "enum": [
+                "CLIENTE",
+                "USUARIO"
+              ],
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/PessoaResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "pessoas"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "PessoasController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreatePessoaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PessoaResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "pessoas"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/pessoas/{id}": {
+      "get": {
+        "operationId": "PessoasController_get",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PessoaResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "pessoas"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "patch": {
+        "operationId": "PessoasController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdatePessoaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PessoaResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "pessoas"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "PessoasController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "pessoas"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/pessoas/change-password": {
+      "post": {
+        "operationId": "PessoasController_changePassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "pessoas"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "operationId": "AuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/refresh": {
+      "post": {
+        "operationId": "AuthController_refresh",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ]
+      }
+    },
+    "/auth/select-company": {
+      "post": {
+        "operationId": "AuthController_selectCompany",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SelectCompanyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "auth"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/companies": {
+      "get": {
+        "operationId": "CompaniesController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "companies"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "CompaniesController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateCompanyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "companies"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/companies/{id}": {
+      "patch": {
+        "operationId": "CompaniesController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateCompanyDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "companies"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/companies/{id}/join": {
+      "post": {
+        "operationId": "CompaniesController_join",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "companies"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/departamentos": {
+      "get": {
+        "operationId": "DepartamentosController_listar",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Lista departamentos da empresa atual",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": [
+                    {
+                      "id": 1,
+                      "nome": "Atendimento",
+                      "createdAt": "2025-01-01T12:00:00Z"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "departamentos"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "DepartamentosController_criar",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateDepartamentoDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "departamentos"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/departamentos/{id}": {
+      "patch": {
+        "operationId": "DepartamentosController_atualizar",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateDepartamentoDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "departamentos"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "DepartamentosController_obter",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "departamentos"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "delete": {
+        "operationId": "DepartamentosController_remover",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "tags": [
+          "departamentos"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/departamentos/{id}/membros": {
+      "get": {
+        "operationId": "DepartamentosController_listarMembros",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista membros (pessoas) do departamento",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": [
+                    {
+                      "id": 10,
+                      "name": "João Operador",
+                      "type": "USUARIO"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "departamentos"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "post": {
+        "operationId": "DepartamentosController_adicionarMembros",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddMembrosDepartamentoDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Adiciona membros ao departamento",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "mensagem": "2 atendente(s) adicionado(s)",
+                    "adicionados": [
+                      1,
+                      2
+                    ],
+                    "jaAdicionados": [
+                      3
+                    ],
+                    "naoEncontrados": [
+                      99
+                    ]
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Somente atendentes (USUARIO) podem ser adicionados ao departamento"
+          }
+        },
+        "tags": [
+          "departamentos"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/departamentos/{id}/membros/{pessoaId}": {
+      "delete": {
+        "operationId": "DepartamentosController_removerMembro",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "pessoaId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Remove membro do departamento",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "removido": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "departamentos"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/chats": {
+      "post": {
+        "operationId": "ChatsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateChatDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Chat criado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": 1,
+                    "companyId": 10,
+                    "clientId": 55,
+                    "status": "PENDING",
+                    "startedAt": "2025-01-01T12:00:00Z"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "chats"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      },
+      "get": {
+        "operationId": "ChatsController_listChats",
+        "parameters": [
+          {
+            "name": "status",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "departmentId",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista chats (fila / filtro)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": [
+                    {
+                      "id": 1,
+                      "status": "PENDING",
+                      "clientId": 5,
+                      "departmentId": 2
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "chats"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/chats/message": {
+      "post": {
+        "operationId": "ChatsController_send",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SendMessageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Mensagem enviada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": 1,
+                    "chatId": 1,
+                    "senderType": "ATTENDANT",
+                    "senderUserId": 99,
+                    "content": "Olá",
+                    "timestamp": "2025-01-01T12:00:05Z"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "chats"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/chats/{id}/messages": {
+      "get": {
+        "operationId": "ChatsController_list",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "limit",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "cursor",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista mensagens do chat",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": [
+                    {
+                      "id": 1,
+                      "content": "Olá",
+                      "senderType": "ATTENDANT"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "chats"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/chats/{chatId}/messages/{messageId}/read": {
+      "patch": {
+        "operationId": "ChatsController_markRead",
+        "parameters": [
+          {
+            "name": "chatId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "messageId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mensagem marcada como lida",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": 10,
+                    "readAt": "2025-01-01T12:05:00Z"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "chats"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/chats/{chatId}/messages/read-bulk/{olderThanId}": {
+      "patch": {
+        "operationId": "ChatsController_bulkRead",
+        "parameters": [
+          {
+            "name": "chatId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "olderThanId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Mensagens marcadas como lidas em lote",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "updated": 42
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "chats"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/chats/{chatId}/messages/{messageId}": {
+      "patch": {
+        "operationId": "ChatsController_updateMessage",
+        "parameters": [
+          {
+            "name": "chatId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          },
+          {
+            "name": "messageId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateMessageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Mensagem atualizada (edição)",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": 10,
+                    "content": "Novo texto",
+                    "editedAt": "2025-01-01T12:06:00Z",
+                    "originalContent": "Texto antigo"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "chats"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/chats/{id}/claim": {
+      "patch": {
+        "operationId": "ChatsController_claim",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chat assumido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": 1,
+                    "attendantId": 99,
+                    "status": "ACTIVE",
+                    "firstHumanAt": "2025-01-01T12:01:00Z"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "chats"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/chats/{id}/close": {
+      "patch": {
+        "operationId": "ChatsController_close",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Chat encerrado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": 1,
+                    "status": "CLOSED",
+                    "endedAt": "2025-01-01T13:00:00Z"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "chats"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/chats/{id}/transfer": {
+      "patch": {
+        "operationId": "ChatsController_transfer",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TransferChatDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chat transferido",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": 1,
+                    "departmentId": 7,
+                    "attendantId": 55,
+                    "status": "ACTIVE"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Atendente não pertence ao departamento destino"
+          }
+        },
+        "tags": [
+          "chats"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/chats/inbound": {
+      "post": {
+        "operationId": "ChatsController_inbound",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InboundMessageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Mensagem inbound registrada e chat criado",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "chat": {
+                      "id": 10,
+                      "status": "BOT"
+                    },
+                    "message": {
+                      "id": 500,
+                      "senderType": "CLIENT",
+                      "content": "Olá"
+                    },
+                    "created": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "chats"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/chats/{id}/bot-message": {
+      "post": {
+        "operationId": "ChatsController_botMessage",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BotMessageDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Mensagem BOT registrada",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": 999,
+                    "senderType": "BOT",
+                    "content": "Como posso ajudar?"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "chats"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    },
+    "/chats/{id}/request-human": {
+      "patch": {
+        "operationId": "ChatsController_requestHuman",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "number"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestHumanDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Chat escalonado para atendimento humano",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "example": {
+                    "id": 10,
+                    "status": "PENDING",
+                    "departmentId": 5
+                  }
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "chats"
+        ],
+        "security": [
+          {
+            "bearer": []
+          }
+        ]
+      }
+    }
+  },
+  "info": {
+    "title": "Jaboti API",
+    "description": "API multiempresa de atendimento Jaboti",
+    "version": "0.1.0",
+    "contact": {}
+  },
+  "tags": [],
+  "servers": [],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "PessoaResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number"
+          },
+          "name": {
+            "type": "string"
+          },
+          "chatName": {
+            "type": "object"
+          },
+          "phone": {
+            "type": "object"
+          },
+          "email": {
+            "type": "object"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CLIENTE",
+              "USUARIO"
+            ]
+          },
+          "role": {
+            "type": "string",
+            "enum": [
+              "OPERATOR",
+              "SUPERVISOR",
+              "ADMIN"
+            ]
+          },
+          "photoUrl": {
+            "type": "object"
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "online": {
+            "type": "boolean"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "type",
+          "role",
+          "active",
+          "online",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "CreatePessoaDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "João da Silva"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+5511999999999",
+            "minLength": 5,
+            "maxLength": 30
+          },
+          "email": {
+            "type": "string",
+            "example": "joao@empresa.com"
+          },
+          "chatName": {
+            "type": "string",
+            "description": "Nome curto para chat",
+            "example": "João S."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CLIENTE",
+              "USUARIO"
+            ],
+            "example": "CLIENTE"
+          },
+          "password": {
+            "type": "string",
+            "description": "Senha inicial (apenas para USUARIO). Se omitida: \"changeme\"",
+            "minLength": 6,
+            "example": "SenhaForte123"
+          },
+          "photoUrl": {
+            "type": "string",
+            "description": "URL da foto / avatar",
+            "example": "https://cdn.exemplo.com/avatars/joao.png"
+          }
+        },
+        "required": [
+          "name",
+          "type"
+        ]
+      },
+      "UpdatePessoaDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "João Atualizado"
+          },
+          "phone": {
+            "type": "string",
+            "example": "+5511888887777",
+            "minLength": 5,
+            "maxLength": 30
+          },
+          "email": {
+            "type": "string",
+            "example": "joao.novo@empresa.com"
+          },
+          "chatName": {
+            "type": "string",
+            "example": "João N."
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "CLIENTE",
+              "USUARIO"
+            ]
+          },
+          "password": {
+            "type": "string",
+            "description": "Nova senha (USUARIO).",
+            "minLength": 6,
+            "example": "NovaSenhaSegura456"
+          },
+          "photoUrl": {
+            "type": "string",
+            "description": "URL da foto / avatar",
+            "example": "https://cdn.exemplo.com/avatars/joao2.png"
+          }
+        }
+      },
+      "ChangePasswordDto": {
+        "type": "object",
+        "properties": {
+          "senhaAtual": {
+            "type": "string",
+            "minLength": 6,
+            "example": "SenhaAtual123"
+          },
+          "novaSenha": {
+            "type": "string",
+            "minLength": 6,
+            "example": "NovaSenhaSegura456"
+          }
+        },
+        "required": [
+          "senhaAtual",
+          "novaSenha"
+        ]
+      },
+      "LoginDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "RefreshDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "SelectCompanyDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateCompanyDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "UpdateCompanyDto": {
+        "type": "object",
+        "properties": {}
+      },
+      "CreateDepartamentoDto": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "example": "Atendimento",
+            "description": "Nome do departamento (exibido nas telas)"
+          }
+        },
+        "required": [
+          "nome"
+        ]
+      },
+      "UpdateDepartamentoDto": {
+        "type": "object",
+        "properties": {
+          "nome": {
+            "type": "string",
+            "example": "Suporte Nível 2",
+            "description": "Novo nome do departamento"
+          }
+        }
+      },
+      "AddMembrosDepartamentoDto": {
+        "type": "object",
+        "properties": {
+          "pessoaIds": {
+            "example": [
+              3,
+              5,
+              9
+            ],
+            "description": "IDs de pessoas (USUARIOS) a adicionar ao departamento",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "pessoaIds"
+        ]
+      },
+      "CreateChatDto": {
+        "type": "object",
+        "properties": {
+          "clientId": {
+            "type": "number",
+            "description": "ID do cliente (Pessoa cliente) que inicia o chat",
+            "example": 101
+          },
+          "departmentId": {
+            "type": "number",
+            "description": "Departamento alvo opcional",
+            "example": 5
+          }
+        },
+        "required": [
+          "clientId"
+        ]
+      },
+      "SendMessageDto": {
+        "type": "object",
+        "properties": {
+          "chatId": {
+            "type": "number",
+            "example": 2001,
+            "description": "Chat ID"
+          },
+          "content": {
+            "type": "string",
+            "example": "Olá, tudo bem?",
+            "description": "Conteúdo textual"
+          },
+          "mediaType": {
+            "type": "string",
+            "example": "image/png",
+            "description": "Tipo de mídia se houver"
+          },
+          "replyToId": {
+            "type": "number",
+            "example": 1234,
+            "description": "Mensagem que está sendo respondida"
+          },
+          "senderType": {
+            "type": "string",
+            "description": "Tipo do remetente",
+            "enum": [
+              "CLIENT",
+              "ATTENDANT",
+              "BOT"
+            ],
+            "example": "ATTENDANT"
+          }
+        },
+        "required": [
+          "chatId",
+          "content"
+        ]
+      },
+      "UpdateMessageDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "Novo conteúdo da mensagem",
+            "example": "Atualizando a informação enviada."
+          },
+          "mediaType": {
+            "type": "string",
+            "description": "Novo tipo de mídia",
+            "example": "image/jpeg"
+          }
+        }
+      },
+      "TransferChatDto": {
+        "type": "object",
+        "properties": {
+          "departmentId": {
+            "type": "number",
+            "description": "Novo departamento (opcional)",
+            "example": 5
+          },
+          "attendantId": {
+            "type": "number",
+            "description": "Novo atendente (opcional)",
+            "example": 42
+          }
+        }
+      },
+      "InboundMessageDto": {
+        "type": "object",
+        "properties": {
+          "clientId": {
+            "type": "number",
+            "description": "ID do cliente (Pessoa CLIENTE)",
+            "example": 123
+          },
+          "content": {
+            "type": "string",
+            "description": "Conteúdo enviado pelo cliente",
+            "example": "Olá, preciso de ajuda"
+          }
+        },
+        "required": [
+          "clientId",
+          "content"
+        ]
+      },
+      "BotMessageDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "Conteúdo da mensagem do BOT",
+            "example": "Sou o assistente virtual, em que posso ajudar?"
+          },
+          "mediaType": {
+            "type": "string",
+            "description": "Tipo de mídia",
+            "example": "image/png"
+          }
+        },
+        "required": [
+          "content"
+        ]
+      },
+      "RequestHumanDto": {
+        "type": "object",
+        "properties": {
+          "departmentId": {
+            "type": "number",
+            "description": "Departamento solicitado para atendimento humano",
+            "example": 5
+          }
+        },
+        "required": [
+          "departmentId"
+        ]
+      }
+    }
+  }
+}

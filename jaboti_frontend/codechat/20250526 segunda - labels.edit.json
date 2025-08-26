@@ -1,0 +1,16 @@
+{
+  "event": "labels.edit",
+  "instance": "Jaboti554497618592",
+  "data": {
+    "id": "2",
+    "name": "‎Favoritos",
+    "color": 0,
+    "deleted": false,
+    "instance": "Jaboti554497618592"
+  },
+  "destination": "http://192.168.100.46/JaspiZAP.NetEnvironment/WhatsAPI.EvolutionAPIAuth.aspx/labels-edit",
+  "date_time": "2025-05-23T10:29:07.861Z",
+  "sender": "554497618592@s.whatsapp.net",
+  "server_url": "http://localhost:2525",
+  "apikey": "C2D5FC1F-0D37-4180-ADC8-C25ACA0208E6"
+}

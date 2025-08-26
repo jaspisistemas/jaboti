@@ -1,0 +1,1534 @@
+{
+	"info": {
+		"_postman_id": "66af59c4-23ee-44f4-931d-8f7f0972a834",
+		"name": "Codechat v1.2.6",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "24135265"
+	},
+	"item": [
+		{
+			"name": "Instance Controller",
+			"item": [
+				{
+					"name": "Views",
+					"item": [
+						{
+							"name": "QrCode",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{baseUrl}}/instance/qrcode/:instanceName",
+									"host": [
+										"{{baseUrl}}"
+									],
+									"path": [
+										"instance",
+										"qrcode",
+										":instanceName"
+									],
+									"variable": [
+										{
+											"key": "instanceName",
+											"value": "{{instance}}",
+											"description": "- required"
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Create Instance",
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "apikey",
+									"type": "string"
+								},
+								{
+									"key": "value",
+									"value": "{{globalApikey}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"instanceName\": \"{{instance}}\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/instance/create",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"instance",
+								"create"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch Instances",
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "in",
+									"value": "header",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "apikey",
+									"type": "string"
+								},
+								{
+									"key": "value",
+									"value": "{{globalApikey}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/instance/fetchInstances?instanceName={{instance}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"instance",
+								"fetchInstances"
+							],
+							"query": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "Recupere uma ou todas as intâncias - optional"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Instance Connect",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const img = \"<img src='{{base64}}' heigth=80%/>\";\r",
+									"pm.visualizer.set(img, { base64: pm.response.json()['base64'] });\r",
+									""
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/instance/connect/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"instance",
+								"connect",
+								":instanceName"
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "Conecte-se à sua intância - required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Connection Status",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/instance/connectionState/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"instance",
+								"connectionState",
+								":instanceName"
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Logout Instance",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/instance/logout/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"instance",
+								"logout",
+								":instanceName"
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Instance",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/instance/delete/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"instance",
+								"delete",
+								":instanceName"
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Send Message Controller",
+			"item": [
+				{
+					"name": "Send Text",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"number\": \"554497618592\",\r\n  \"options\": {\r\n    \"presence\": \"recording\"\r\n  },\r\n  \"textMessage\": {\r\n    \"text\": \"{{$randomCity}}\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/message/sendText/{{instance}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"message",
+								"sendText",
+								"{{instance}}"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send Media",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"number\": \"554497618592\",\r\n    \"mediaMessage\": {\r\n        \"mediatype\": \"document\",\r\n        \"fileName\": \"WhatsApp Image 2024-11-08 at 15.13.54.pfx\",\r\n        \"caption\": \"\",\r\n        \"media\": \"https://chat.jaspi.com.br/appjaspi/E65399040/chat/9920e130-07ef-4e3b-8b1b-01a34b5beba1.pfx\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/message/sendMedia/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"message",
+								"sendMedia",
+								":instanceName"
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send Media Copy",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"number\": \"<string> - required\",\r\n  \"options\": {\r\n    \"delay\": \"<interger> - optional\",\r\n    \"presence\": \"<'composing' | 'recording' | 'paused'> - optional\"\r\n  },\r\n  \"mediaMessage\": {\r\n    \"mediatype\": \"<'image' | 'document' | 'video' | 'audio'> - required\",\r\n    \"fileName\": \"<string> - optional\",\r\n    \"caption\": \"<string> - optional\",\r\n    \"media\": \"<string> - URL - required\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/message/sendMedia/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"message",
+								"sendMedia",
+								":instanceName"
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send Media File",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "number",
+									"value": "<string>",
+									"description": "- required",
+									"type": "text"
+								},
+								{
+									"key": "caption",
+									"value": "<string>",
+									"description": "- optional",
+									"type": "text"
+								},
+								{
+									"key": "attachment",
+									"description": "- required - file",
+									"type": "file",
+									"src": "/C:/Users/clebe/OneDrive/Imagens/Saved Pictures/wp2437961.png"
+								},
+								{
+									"key": "mediatype",
+									"value": "<string>",
+									"description": "-required - image | document | video | audio",
+									"type": "text"
+								},
+								{
+									"key": "presence",
+									"value": "<string>",
+									"description": "- optional - composing | recording",
+									"type": "text"
+								},
+								{
+									"key": "delay",
+									"value": "<number>",
+									"description": "- optional",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/message/sendMediaFile/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"message",
+								"sendMediaFile",
+								":instanceName"
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "Required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send Location",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"number\": \"<string> - required\",\r\n  \"options\": {\r\n    \"delay\": \"<interger> - optional\",\r\n    \"presence\": \"<'composing' | 'recording' | 'paused'> - optional\"\r\n  },\r\n  \"locationMessage\": {\r\n    \"name\": \"<string> - optional\",\r\n    \"address\": \"<string> - optional\",\r\n    \"latitude\": \"<interger> - required\",\r\n    \"longitude\": \"<interger> - required\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/message/sendLocation/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"message",
+								"sendLocation",
+								":instanceName"
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send Contact",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"number\": \"<string> - required\",\r\n  \"options\": {\r\n    \"delay\": \"<interger> - optional\",\r\n    \"presence\": \"<'composing' | 'recording' | 'paused'> - optional\"\r\n  },\r\n  \"contactMessage\": [\r\n    {\r\n      \"fullName\": \"<string> - required\",\r\n      \"wuid\": \"<string> - required\",\r\n      \"phoneNumber\": \"<string> - required\"\r\n    },\r\n    {\r\n      \"fullName\": \"Contact Name\",\r\n      \"wuid\": \"5531988882222\",\r\n      \"phoneNumber\": \"+55 31 9 8888-2222\"\r\n    },\r\n    {\r\n      \"fullName\": \"Contact Name\",\r\n      \"wuid\": \"5531922228888\",\r\n      \"phoneNumber\": \"+55 31 9 2222-8888\"\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/message/sendContact/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"message",
+								"sendContact",
+								":instanceName"
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send Reaction",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"reactionMessage\": {\r\n    \"key\": {\r\n      \"remoteJid\": \"<string> - required\",\r\n      \"fromMe\": \"<boolean> - required\",\r\n      \"id\": \"<string> - required\"\r\n    },\r\n    \"reaction\": \"<string> - required - max 1\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/message/sendReaction/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"message",
+								"sendReaction",
+								":instanceName"
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send WhatsApp Audio",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"number\": \"<string> - required\",\r\n  \"options\": {\r\n    \"delay\": \"<interger> - optional\"\r\n  },\r\n  \"audioMessage\": {\r\n    \"audio\": \"<string> - URL - required\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/message/sendWhatsAppAudio/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"message",
+								"sendWhatsAppAudio",
+								":instanceName"
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send WhatsApp Audio - File",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "number",
+									"value": "<string>",
+									"description": "- required",
+									"type": "text"
+								},
+								{
+									"key": "attachment",
+									"description": "- required - file",
+									"type": "file",
+									"src": "/C:/Users/clebe/Downloads/sample-3s.mp3"
+								},
+								{
+									"key": "delay",
+									"value": "<interger>",
+									"description": "- optional",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{baseUrl}}/message/sendWhatsAppAudioFile/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"message",
+								"sendWhatsAppAudioFile",
+								":instanceName"
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Send Buttons",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"number\": \"554498457962\",\r\n  \"buttonMessage\": {\r\n    \"title\": \"Tutle Button\",\r\n    \"description\": \"Description Button\",\r\n    \"footerText\": \"Footer Button\",\r\n    \"buttons\": [\r\n      {\r\n        \"buttonText\": \"Click here 1\",\r\n        \"buttonId\": \"1\"\r\n      },\r\n      {\r\n        \"buttonText\": \"Click here 2\",\r\n        \"buttonId\": \"2\"\r\n      }\r\n    ],\r\n    \"mediaMessage\": {\r\n      \"mediatype\": \"image\",\r\n      \"fileName\": \"image.png\",\r\n      \"media\": \"https://images.freeimages.com/images/large-previews/31c/red-fox-in-the-wild-1-1624832.jpg\"\r\n    }\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/message/sendButtons/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"message",
+								"sendButtons",
+								":instanceName"
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Chat Controller",
+			"item": [
+				{
+					"name": "WhatsApp Number",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"numbers\": [\r\n        \"554497618592\"\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/chat/whatsappNumbers/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"whatsappNumbers",
+								":instanceName"
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Read Messages",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"readMessages\": [\r\n    {\r\n      \"remoteJid\": \"<string> - required\",\r\n      \"fromMe\": \"<boolean> - required\",\r\n      \"id\": \"<string> - required\"\r\n    }\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/chat/markMessageAsRead/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"markMessageAsRead",
+								":instanceName"
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Archive Chat",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"lastMessage\": {\r\n    \"key\": {\r\n      \"remoteJid\": \"<string> - required\",\r\n      \"fromMe\": \"<boolean> - required\",\r\n      \"id\": \"<string> - required\"\r\n    }\r\n  },\r\n  // false: to unarchive\r\n  // true: to archive\r\n  \"archive\": \"<boolean> - required\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/chat/archiveChat/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"archiveChat",
+								":instanceName"
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Message",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"remoteJid\": \"<string> - required\",\r\n  \"fromMe\": \"<boolean> - required\",\r\n  \"id\": \"<string> - required\",\r\n  \"paticipant\": \"<string> - optional\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/chat/deleteMessageForEveryone/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"deleteMessageForEveryone",
+								":instanceName"
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Fetch Profile Picture",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"number\": \"554499718618@s.whatsapp.net\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/chat/fetchProfilePictureUrl/Jaboti554499017683",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"fetchProfilePictureUrl",
+								"Jaboti554499017683"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Find Contacts",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  // A propriedade \"where\" é opcional\r\n  \"where\": {\r\n    \"id\": \"<string> - required\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/chat/findContacts/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"findContacts",
+								":instanceName"
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get Base64 From Media Message",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const img = \"<img src='data:image/jpeg;base64,{{base64}}' height=80%/>\";\r",
+									"pm.visualizer.set(img, {base64: pm.response.json()['base64']});"
+								],
+								"type": "text/javascript",
+								"packages": {}
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"key\": {\r\n    \"id\": \"5E2E0C09D110CFC5B1EE\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/chat/getBase64FromMediaMessage/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"getBase64FromMediaMessage",
+								":instanceName"
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Find Messages",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "/*\r\n  Each of these properties are optional.\r\n  With mongodb disabled, only the \"key.id\" property is available.\r\n  Remove all comments before submitting the request.\r\n*/\r\n{\r\n  \"where\": {\r\n    /* \r\n     * \"key.fromMe\": false,\r\n     * \"key.remoteJid\": \"123@s.whatsapp.net\",\r\n     * \"key.id\": \"1C42B68AFA410DBE198BA54DB7F45762\"\r\n    */\r\n    \"key\": {\r\n      \"remoteJid\": \"<string> - required\",\r\n      \"fromMe\": \"<boolean> - required\",\r\n      \"id\": \"<string> - required\"\r\n    },\r\n    \"message.[...]\": {}\r\n  },\r\n  // optional\r\n  \"limit\": 10\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/chat/findMessages/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"findMessages",
+								":instanceName"
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Find Messages Copy",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"where\": {\r\n    \"key\": {\r\n      \"remoteJid\": \"554498460067@s.whatsapp.net\",\r\n      \"fromMe\": false,\r\n      \"id\": \"DA348234A97E348610DABAE7BE400681\"\r\n    },\r\n    \"message.[...]\": {}\r\n  },\r\n  // optional\r\n  \"limit\": 10\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/chat/findMessages/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"findMessages",
+								":instanceName"
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Find Status Message",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  // A propriedade \"where\" é opcional, sem ela, é possível recuperar o array com todos os dades\r\n  \"where\": {\r\n    \"id\": \"<string> - required\"\r\n  }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/chat/findStatusMessage/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"findStatusMessage",
+								":instanceName"
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Find Chats",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/chat/findChats/:inatnceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"chat",
+								"findChats",
+								":inatnceName"
+							],
+							"variable": [
+								{
+									"key": "inatnceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Group Controller",
+			"item": [
+				{
+					"name": "Create Group",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"subject\": \"<string> - required\",  \r\n  \"description\": \"<string> - optional\",\r\n  \"participants\": [\r\n    \"<string> - required\"\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/group/create/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"group",
+								"create",
+								":instanceName"
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Group Picture",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"image\": \"<string> - URL - required\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/group/updateGroupPicture/:instanceName?groupJid={{groupJid}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"group",
+								"updateGroupPicture",
+								":instanceName"
+							],
+							"query": [
+								{
+									"key": "groupJid",
+									"value": "{{groupJid}}",
+									"description": "- required"
+								}
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Find Group",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/group/findGroupInfos/:instanceName?groupJid={{groupJid}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"group",
+								"findGroupInfos",
+								":instanceName"
+							],
+							"query": [
+								{
+									"key": "groupJid",
+									"value": "{{groupJid}}",
+									"description": "- required"
+								}
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Find Participants",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/group/participants/:instanceName?groupJid={{groupJid}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"group",
+								"participants",
+								":instanceName"
+							],
+							"query": [
+								{
+									"key": "groupJid",
+									"value": "{{groupJid}}",
+									"description": "- required"
+								}
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Invite Code",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/group/inviteCode/:instanceName?groupJid={{groupJid}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"group",
+								"inviteCode",
+								":instanceName"
+							],
+							"query": [
+								{
+									"key": "groupJid",
+									"value": "{{groupJid}}",
+									"description": "- required"
+								}
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Revoke Invite Code",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/group/revokeInviteCode/:instanceName?groupJid={{groupJid}}",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"group",
+								"revokeInviteCode",
+								":instanceName"
+							],
+							"query": [
+								{
+									"key": "groupJid",
+									"value": "{{groupJid}}",
+									"description": "- required"
+								}
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Update Participant",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"action\": \"<'add' | 'remove' | 'promote' | 'demote'> - required\",\r\n  \"participants\": [\r\n    \"<string> - required\"\r\n  ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/group/updateParticipant/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"group",
+								"updateParticipant",
+								":instanceName"
+							],
+							"query": [
+								{
+									"key": "groupJid",
+									"value": "{{groupJid}}",
+									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Leave Group",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/group/leaveGroup/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"group",
+								"leaveGroup",
+								":instanceName"
+							],
+							"query": [
+								{
+									"key": "groupJid",
+									"value": "{{groupJid}}",
+									"description": "- required",
+									"disabled": true
+								}
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "JWT",
+			"item": [
+				{
+					"name": "Refresh Token",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"oldToken\": \"<string> - required\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/instance/refreshToken/",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"instance",
+								"refreshToken",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Webhook",
+			"item": [
+				{
+					"name": "Set Webhook",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"enabled\": true,\r\n  \"url\": \"https://chat.jaspi.com.br/whatsapi.codechatauth.aspx\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/webhook/set/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"webhook",
+								"set",
+								":instanceName"
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Find Webhook",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{baseUrl}}/webhook/find/:instanceName",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"webhook",
+								"find",
+								":instanceName"
+							],
+							"variable": [
+								{
+									"key": "instanceName",
+									"value": "{{instance}}",
+									"description": "- required"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://192.168.100.46:2606",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"key": "baseUrl",
+			"value": "http://chat.jaspi.com.br:2607",
+			"type": "string"
+		},
+		{
+			"key": "instance",
+			"value": "Jaspi CELL",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"key": "instance",
+			"value": "Jaspi OFICIAL",
+			"type": "string"
+		},
+		{
+			"key": "token",
+			"value": "Token JaspiCELL",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"key": "token",
+			"value": "Token JaspiOFICIAL",
+			"type": "string"
+		},
+		{
+			"key": "apikey",
+			"value": "7259FC4B-2825-402D-9321-022978061B84",
+			"type": "string",
+			"disabled": true
+		},
+		{
+			"key": "globalApikey",
+			"value": "zYzP7ocstxh3SJ23D4FZTCu4ehnM8v4hu",
+			"type": "string"
+		},
+		{
+			"key": "groupJid",
+			"value": "123@g.us",
+			"type": "string"
+		},
+		{
+			"key": "baseUrl",
+			"value": "URL JaspiCELL",
+			"type": "string",
+			"disabled": true
+		}
+	]
+}

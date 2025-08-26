@@ -1,0 +1,50 @@
+{
+  "event": "messages.upsert",
+  "instance": "Jaboti554497618592",
+  "data": {
+    "key": {
+      "remoteJid": "554498457962@s.whatsapp.net",
+      "fromMe": true,
+      "id": "3EB08D57F525F0EE553113"
+    },
+    "pushName": "Italo Rodrigues",
+    "status": "SERVER_ACK",
+    "message": {
+      "audioMessage": {
+        "url": "https://mmg.whatsapp.net/v/t62.7117-24/11772708_704756875255654_5271201529128124535_n.enc?ccb=11-4&oh=01_Q5Aa1gEDr13yvkzavOB-tuQ_h5BKd-QAVezDG8pczVNgXh1bLA&oe=685C17AA&_nc_sid=5e03e0&mms3=true",
+        "mimetype": "audio/ogg; codecs=opus",
+        "fileSha256": "oRM3DgKi2v+ZXw+qcsXOjNEEbxI6j8rpgULU2HQPGaE=",
+        "fileLength": "10042",
+        "seconds": 5,
+        "ptt": true,
+        "mediaKey": "eQ7MoE1BxDWbotJik4AaeYAVmonbv5ImMk/p2RZLRpo=",
+        "fileEncSha256": "4ycpSzFyTGxtrWm4b154OW8t5X9P7kBs/tMqQgsZR4Y=",
+        "directPath": "/v/t62.7117-24/11772708_704756875255654_5271201529128124535_n.enc?ccb=11-4&oh=01_Q5Aa1gEDr13yvkzavOB-tuQ_h5BKd-QAVezDG8pczVNgXh1bLA&oe=685C17AA&_nc_sid=5e03e0",
+        "mediaKeyTimestamp": "1748279147",
+        "contextInfo": {
+          "ephemeralSettingTimestamp": "1701368381",
+          "disappearingMode": {
+            "initiator": "CHANGED_IN_CHAT"
+          }
+        },
+        "waveform": "AAAAAB81QFBUTVFORU9YX15eXldTUkhJVS0rTTEzUiUdNxcXOBkJCAIAACdFV0AtHyguMEI1ChosQBUAAAAAAA==",
+        "viewOnce": false
+      }
+    },
+    "contextInfo": {
+      "ephemeralSettingTimestamp": "1701368381",
+      "disappearingMode": {
+        "initiator": "CHANGED_IN_CHAT"
+      }
+    },
+    "messageType": "audioMessage",
+    "messageTimestamp": 1748279148,
+    "instanceId": "46b40e16-21ae-458f-abfe-ae1dc69b4b7b",
+    "source": "web"
+  },
+  "destination": "http://192.168.100.46/JaspiZAP.NetEnvironment/WhatsAPI.EvolutionAPIAuth.aspx/messages-upsert",
+  "date_time": "2025-05-26T14:05:48.613Z",
+  "sender": "554497618592@s.whatsapp.net",
+  "server_url": "http://localhost:2525",
+  "apikey": "C2D5FC1F-0D37-4180-ADC8-C25ACA0208E6"
+}

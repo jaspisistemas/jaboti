@@ -1,0 +1,46 @@
+{
+  "name": "jabotijs",
+  "version": "1.0.0",
+  "description": "Sistema Jaboti - Frontend e Backend",
+  "private": true,
+  "workspaces": [
+    "jaboti_frontend",
+    "jaboti_backend"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:frontend": "cd jaboti_frontend && npm run dev",
+    "dev:backend": "cd jaboti_backend && npm run dev",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "cd jaboti_frontend && npm run build",
+    "build:backend": "cd jaboti_backend && npm run build",
+    "install:all": "npm install && cd jaboti_frontend && npm install && cd ../jaboti_backend && npm install",
+    "clean": "npm run clean:frontend && npm run clean:backend",
+    "clean:frontend": "cd jaboti_frontend && rm -rf node_modules dist",
+    "clean:backend": "cd jaboti_backend && rm -rf node_modules dist",
+    "db:migrate": "cd jaboti_backend && npm run db:migrate",
+    "db:seed": "cd jaboti_backend && npm run db:seed"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/seu-usuario/jabotijs.git"
+  },
+  "keywords": [
+    "chat",
+    "atendimento",
+    "whatsapp",
+    "api",
+    "react",
+    "nestjs",
+    "typescript"
+  ],
+  "author": "Sua Equipe",
+  "license": "MIT"
+}

@@ -1,0 +1,18 @@
+{
+  "event": "messages.update",
+  "instance": "Jaboti554497618592",
+  "data": {
+    "messageId": "cmb1aai8m1ge2jlycycjy8b33",
+    "keyId": "3A0E9D596D72E93F5F48",
+    "remoteJid": "554498457962:35@s.whatsapp.net",
+    "fromMe": true,
+    "participant": "554498457962:35@s.whatsapp.net",
+    "status": "DELIVERY_ACK",
+    "instanceId": "46b40e16-21ae-458f-abfe-ae1dc69b4b7b"
+  },
+  "destination": "http://192.168.100.46/JaspiZAP.NetEnvironment/WhatsAPI.EvolutionAPIAuth.aspx/messages-update",
+  "date_time": "2025-05-26T09:37:11.607Z",
+  "sender": "554497618592@s.whatsapp.net",
+  "server_url": "http://localhost:2525",
+  "apikey": "C2D5FC1F-0D37-4180-ADC8-C25ACA0208E6"
+}

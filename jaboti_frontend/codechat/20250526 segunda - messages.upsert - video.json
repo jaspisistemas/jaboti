@@ -1,0 +1,53 @@
+{
+  "event": "messages.upsert",
+  "instance": "Jaboti554497618592",
+  "data": {
+    "key": {
+      "remoteJid": "554498457962@s.whatsapp.net",
+      "fromMe": true,
+      "id": "3EB0B2DA4EF0A76C8B7A69"
+    },
+    "pushName": "Italo Rodrigues",
+    "status": "SERVER_ACK",
+    "message": {
+      "videoMessage": {
+        "url": "https://mmg.whatsapp.net/v/t62.7161-24/19275907_1456945998832558_1039393334968343262_n.enc?ccb=11-4&oh=01_Q5Aa1gGhFY4uwZ5VVTcz7_scuJRAxNOdQcQA7-HP9EXc0s9kMg&oe=685C1EA3&_nc_sid=5e03e0&mms3=true",
+        "mimetype": "video/mp4",
+        "fileSha256": "nd8h45WrcQ9gEgnvDp0TVjY2K3HJaVb04Mh5OgEOb5s=",
+        "fileLength": "89176",
+        "seconds": 16,
+        "mediaKey": "d997M0wzOWBUffl0Fr1HyHfwSVmFHcK0Ggpk8sGEZos=",
+        "gifPlayback": false,
+        "height": 1080,
+        "width": 1920,
+        "fileEncSha256": "DgzxS2jvWYLFhCXKX2mTpc9g3ki6kELWWVnNUDrZs0Q=",
+        "directPath": "/v/t62.7161-24/19275907_1456945998832558_1039393334968343262_n.enc?ccb=11-4&oh=01_Q5Aa1gGhFY4uwZ5VVTcz7_scuJRAxNOdQcQA7-HP9EXc0s9kMg&oe=685C1EA3&_nc_sid=5e03e0",
+        "mediaKeyTimestamp": "1748279305",
+        "jpegThumbnail": "/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAMCAgICAgMCAgIDAwMDBAYEBAQEBAgGBgUGCQgKCgkICQkKDA8MCgsOCwkJDRENDg8QEBEQCgwSExIQEw8QEBD/2wBDAQMDAwQDBAgEBAgQCwkLEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBAQEBD/wAARCAA4AGQDASIAAhEBAxEB/8QAGQABAQEBAQEAAAAAAAAAAAAAAAcCBgUJ/8QAKBAAAQEGBgICAwAAAAAAAAAAAAECAwQGBxIFERhXldIzcgghEzJB/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAH/xAAVEQEBAAAAAAAAAAAAAAAAAAAAIf/aAAwDAQACEQMRAD8A6Wqcrz5gFWMUwqU/jRhkdKULGu0cvIGR4J8r2GVl1cjt82n7fb5blZVM0ZZyyzaTj3WC1obZvffHWFctLFoz+NmlkC9RmGvTNu5X7NzxGLlstRFVES5EW5Ppc68THqhosSpLJtBKRYhKGCR0x0YlBxi0Rh0M9j3S4HDsKxENO2VeM22/WTSr9fw9jTxQnZ+T+Gh+pQgRU908UJ2fk/hofqNPFCdn5P4aH6lCAE908UJ2fk/hofqNPFCdn5P4aH6lCAE908UJ2fk/hofqNPFCdn5P4aH6lCAE908UJ2fk/hofqNPFCdn5P4aH6lCAE908UJ2fk/hofqChADLrxMeqGjLrxMeqGgAAAAAAAAAAAAAAAAMuvEx6oaMuvEx6oaAAAAAAAAAAAAAAAAAy68THqhoAAAAAAAAAAAAAAAAAD//Z",
+        "contextInfo": {
+          "ephemeralSettingTimestamp": "1701368381",
+          "disappearingMode": {
+            "initiator": "CHANGED_IN_CHAT"
+          }
+        },
+        "streamingSidecar": "qwVFwUgyA03Hu/H5QFgeR5LYaQo=",
+        "viewOnce": false
+      }
+    },
+    "contextInfo": {
+      "ephemeralSettingTimestamp": "1701368381",
+      "disappearingMode": {
+        "initiator": "CHANGED_IN_CHAT"
+      }
+    },
+    "messageType": "videoMessage",
+    "messageTimestamp": 1748279307,
+    "instanceId": "46b40e16-21ae-458f-abfe-ae1dc69b4b7b",
+    "source": "web"
+  },
+  "destination": "http://192.168.100.46/JaspiZAP.NetEnvironment/WhatsAPI.EvolutionAPIAuth.aspx/messages-upsert",
+  "date_time": "2025-05-26T14:08:27.338Z",
+  "sender": "554497618592@s.whatsapp.net",
+  "server_url": "http://localhost:2525",
+  "apikey": "C2D5FC1F-0D37-4180-ADC8-C25ACA0208E6"
+}

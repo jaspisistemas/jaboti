@@ -1,0 +1,15 @@
+{
+  "event": "chats.upsert",
+  "instance": "Jaboti554497618592",
+  "data": [
+    {
+      "id": "cmb0u7dlh054cjlycpyf3watr",
+      "name": "waly Robert"
+    }
+  ],
+  "destination": "http://192.168.100.46/JaspiZAP.NetEnvironment/WhatsAPI.EvolutionAPIAuth.aspx/chats-upsert",
+  "date_time": "2025-05-26T11:25:47.329Z",
+  "sender": "554497618592@s.whatsapp.net",
+  "server_url": "http://localhost:2525",
+  "apikey": "C2D5FC1F-0D37-4180-ADC8-C25ACA0208E6"
+}

@@ -1,0 +1,15 @@
+{
+  "event": "messages.delete",
+  "instance": "Jaboti554497618592",
+  "data": {
+    "remoteJid": "120363182487385466@g.us",
+    "fromMe": false,
+    "id": "CB6E47020DD90ADEC298154959A9A350",
+    "participant": "558288929063@s.whatsapp.net"
+  },
+  "destination": "http://192.168.100.46/JaspiZAP.NetEnvironment/WhatsAPI.EvolutionAPIAuth.aspx/messages-delete",
+  "date_time": "2025-05-26T09:39:21.002Z",
+  "sender": "554497618592@s.whatsapp.net",
+  "server_url": "http://localhost:2525",
+  "apikey": "C2D5FC1F-0D37-4180-ADC8-C25ACA0208E6"
+}

@@ -1,0 +1,339 @@
+{
+  "info": {
+    "name": "jaboti_backend",
+    "_postman_id": "b6c0c0c2-3ad3-4a6d-9d0e-7c9b2f0e9abc",
+    "description": "Collection para testar endpoints principais do jaboti_backend (Pessoa unificado)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3523" },
+    { "key": "accessToken", "value": "" },
+    { "key": "refreshToken", "value": "" },
+    { "key": "companyId", "value": "" },
+  { "key": "pessoaId", "value": "" },
+  { "key": "departamentoId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Login",
+          "request": {
+            "method": "POST",
+            "header": [ {"key":"Content-Type","value":"application/json"} ],
+            "body": {"mode": "raw","raw": "{\n  \"user\": \"Admin\",\n  \"password\": \"admin123\"\n}"},
+            "url": {"raw": "{{baseUrl}}/auth/login","host": ["{{baseUrl}}"],"path":["auth","login"]}
+          },
+          "event": [
+            {"listen": "test","script": {"exec": [
+              "const json = pm.response.json();",
+              "if (json.accessToken) pm.collectionVariables.set('accessToken', json.accessToken);",
+              "if (json.refreshToken) pm.collectionVariables.set('refreshToken', json.refreshToken);",
+              "if (json.companies && json.companies.length>0){ pm.collectionVariables.set('companyId', json.companies[0]); }",
+              "pm.test('Login OK', function(){ pm.expect(json.accessToken).to.be.a('string'); });"
+            ],"type":"text/javascript"}}
+          ]
+        },
+        
+        {
+          "name": "Select Company",
+            "request": {
+              "method": "POST",
+              "header": [
+                {"key":"Content-Type","value":"application/json"},
+                {"key":"Authorization","value":"Bearer {{accessToken}}"}
+              ],
+              "body": {"mode":"raw","raw": "{\n  \"companyId\": {{companyId}}\n}"},
+              "url": {"raw": "{{baseUrl}}/auth/select-company","host":["{{baseUrl}}"],"path":["auth","select-company"]}
+            },
+            "event":[{"listen":"test","script":{"exec":[
+              "const json = pm.response.json();",
+              "if (json.accessToken) pm.collectionVariables.set('accessToken', json.accessToken);",
+              "pm.test('Company selected', ()=> pm.expect(json.accessToken).to.be.a('string'));"
+
+            ],"type":"text/javascript"}}]
+        },
+        {
+          "name": "Refresh Token",
+          "request": {
+            "method": "POST",
+            "header": [ {"key":"Content-Type","value":"application/json"} ],
+            "body": {"mode":"raw","raw":"{\n  \"refreshToken\": \"{{refreshToken}}\"\n}"},
+            "url": {"raw": "{{baseUrl}}/auth/refresh","host":["{{baseUrl}}"],"path":["auth","refresh"]}
+          },
+          "event": [ {"listen":"test","script":{"exec":[
+            "const json = pm.response.json();",
+            "if (json.accessToken) pm.collectionVariables.set('accessToken', json.accessToken);",
+            "if (json.refreshToken) pm.collectionVariables.set('refreshToken', json.refreshToken);",
+            "pm.test('Refresh OK', ()=> pm.expect(json.accessToken).to.be.a('string'));"
+
+          ],"type":"text/javascript"}} ]
+        }
+      ]
+    },
+    {
+      "name": "Companies",
+      "item": [
+        {
+          "name": "List Companies",
+          "request": {"method":"GET","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":{"raw":"{{baseUrl}}/companies","host":["{{baseUrl}}"],"path":["companies"]}},
+          "event":[{"listen":"test","script":{"exec":[
+            "const arr = pm.response.json();",
+            "if (Array.isArray(arr) && arr.length>0){ pm.collectionVariables.set('companyId', arr[0].id || arr[0]); }",
+            "pm.test('Companies listed', ()=> pm.expect(arr).to.be.an('array'));"
+
+          ],"type":"text/javascript"}}]
+        },
+        {
+          "name": "Create Company",
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"},{"key":"Authorization","value":"Bearer {{accessToken}}"}],"body":{"mode":"raw","raw":"{\n  \"name\": \"Empresa Demo\"\n}"},"url":{"raw":"{{baseUrl}}/companies","host":["{{baseUrl}}"],"path":["companies"]}},
+          "event":[{"listen":"test","script":{"exec":[
+            "const json = pm.response.json(); pm.collectionVariables.set('companyId', json.id);",
+            "pm.test('Company created', ()=> pm.expect(json.id).to.be.a('number'));"
+
+          ],"type":"text/javascript"}}]
+        },
+        {
+          "name": "Join Company",
+          "request": {"method":"POST","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":{"raw":"{{baseUrl}}/companies/{{companyId}}/join","host":["{{baseUrl}}"],"path":["companies","{{companyId}}","join"]}}
+        },
+        {
+          "name": "Update Company",
+          "request": {"method":"PATCH","header":[{"key":"Content-Type","value":"application/json"},{"key":"Authorization","value":"Bearer {{accessToken}}"}],"body":{"mode":"raw","raw":"{\n  \"name\": \"Empresa Demo Alterada\"\n}"},"url":{"raw":"{{baseUrl}}/companies/{{companyId}}","host":["{{baseUrl}}"],"path":["companies","{{companyId}}"]}}
+        }
+      ]
+    },
+    {
+      "name": "Departamentos",
+      "item": [
+        {
+          "name": "Listar Departamentos",
+          "request": {"method":"GET","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":{"raw":"{{baseUrl}}/departamentos","host":["{{baseUrl}}"],"path":["departamentos"]}}
+        },
+        {
+          "name": "Criar Departamento",
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"},{"key":"Authorization","value":"Bearer {{accessToken}}"}],"body":{"mode":"raw","raw":"{\n  \"nome\": \"Suporte\"\n}"},"url":{"raw":"{{baseUrl}}/departamentos","host":["{{baseUrl}}"],"path":["departamentos"]}},
+          "event":[{"listen":"test","script":{"exec":[
+            "const json = pm.response.json(); pm.collectionVariables.set('departamentoId', json.id);",
+            "pm.test('Departamento criado', ()=> pm.expect(json.id).to.be.a('number'));"
+          ],"type":"text/javascript"}}]
+        },
+        {
+          "name": "Obter Departamento",
+          "request": {"method":"GET","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":{"raw":"{{baseUrl}}/departamentos/{{departamentoId}}","host":["{{baseUrl}}"],"path":["departamentos","{{departamentoId}}"]}}
+        },
+        {
+          "name": "Atualizar Departamento",
+          "request": {"method":"PATCH","header":[{"key":"Content-Type","value":"application/json"},{"key":"Authorization","value":"Bearer {{accessToken}}"}],"body":{"mode":"raw","raw":"{\n  \"nome\": \"Suporte N2\"\n}"},"url":{"raw":"{{baseUrl}}/departamentos/{{departamentoId}}","host":["{{baseUrl}}"],"path":["departamentos","{{departamentoId}}"]}}
+        },
+        {
+          "name": "Remover Departamento",
+          "request": {"method":"DELETE","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":{"raw":"{{baseUrl}}/departamentos/{{departamentoId}}","host":["{{baseUrl}}"],"path":["departamentos","{{departamentoId}}"]}}
+        }
+        ,
+        {
+          "name": "Listar Membros Departamento",
+          "request": {"method":"GET","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":{"raw":"{{baseUrl}}/departamentos/{{departamentoId}}/membros","host":["{{baseUrl}}"],"path":["departamentos","{{departamentoId}}","membros"]}},
+          "event":[{"listen":"test","script":{"exec":[
+            "const arr = pm.response.json();",
+            "pm.test('Lista membros OK', ()=> pm.expect(arr).to.be.an('array'));"
+          ],"type":"text/javascript"}}]
+        },
+        {
+          "name": "Adicionar Membros Departamento",
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"},{"key":"Authorization","value":"Bearer {{accessToken}}"}],"body":{"mode":"raw","raw":"{\n  \"pessoaIds\": [ {{pessoaId}} ]\n}"},"url":{"raw":"{{baseUrl}}/departamentos/{{departamentoId}}/membros","host":["{{baseUrl}}"],"path":["departamentos","{{departamentoId}}","membros"]}},
+          "event":[{"listen":"test","script":{"exec":[
+            "const json = pm.response.json();",
+            "pm.test('Estrutura retorno', ()=> { pm.expect(json).to.have.property('mensagem'); pm.expect(json).to.have.property('adicionados'); });",
+            "if (Array.isArray(json.adicionados) && json.adicionados.length>0){ pm.test('Adicionados array', ()=> pm.expect(json.adicionados[0]).to.be.a('number')); }"
+          ],"type":"text/javascript"}}]
+        },
+        {
+          "name": "Remover Membro Departamento",
+          "request": {"method":"DELETE","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":{"raw":"{{baseUrl}}/departamentos/{{departamentoId}}/membros/{{pessoaId}}","host":["{{baseUrl}}"],"path":["departamentos","{{departamentoId}}","membros","{{pessoaId}}"]}},
+          "event":[{"listen":"test","script":{"exec":[
+            "const json = pm.response.json();",
+            "pm.test('Membro removido', ()=> pm.expect(json.removido).to.be.true);"
+          ],"type":"text/javascript"}}]
+        }
+      ]
+    },
+    {
+      "name": "Pessoas",
+      "item": [
+        {
+          "name": "List Pessoas (all)",
+          "request": {"method":"GET","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":{"raw":"{{baseUrl}}/pessoas","host":["{{baseUrl}}"],"path":["pessoas"]}}
+        },
+        {
+          "name": "List Pessoas tipo=CLIENTE",
+          "request": {"method":"GET","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":{"raw":"{{baseUrl}}/pessoas?tipo=CLIENTE","host":["{{baseUrl}}"],"path":["pessoas"],"query":[{"key":"tipo","value":"CLIENTE"}]}}
+        },
+        {
+          "name": "List Pessoas tipo=USUARIO",
+          "request": {"method":"GET","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":{"raw":"{{baseUrl}}/pessoas?tipo=USUARIO","host":["{{baseUrl}}"],"path":["pessoas"],"query":[{"key":"tipo","value":"USUARIO"}]}},
+          "event":[{"listen":"test","script":{"exec":[
+            "const arr = pm.response.json();",
+            "pm.test('List USUARIO OK', ()=> pm.expect(arr).to.be.an('array'));",
+            "if (Array.isArray(arr) && arr.length>0){ pm.collectionVariables.set('usuarioId', arr[0].id); pm.collectionVariables.set('pessoaId', arr[0].id); }"
+          ],"type":"text/javascript"}}]
+        },
+        {
+          "name": "Search Pessoas q=cli",
+          "request": {"method":"GET","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":{"raw":"{{baseUrl}}/pessoas?q=cli","host":["{{baseUrl}}"],"path":["pessoas"],"query":[{"key":"q","value":"cli"}]}}
+        },
+        {
+          "name": "Create Pessoa CLIENTE",
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"},{"key":"Authorization","value":"Bearer {{accessToken}}"}],"body":{"mode":"raw","raw":"{\n  \"name\": \"Cliente Teste\",\n  \"email\": \"cliente+{{$timestamp}}@local\",\n  \"type\": \"CLIENTE\"\n}"},"url":{"raw":"{{baseUrl}}/pessoas","host":["{{baseUrl}}"],"path":["pessoas"]}},
+          "event":[{"listen":"test","script":{"exec":[
+            "const json = pm.response.json(); pm.collectionVariables.set('pessoaId', json.id);"
+          ],"type":"text/javascript"}}]
+        },
+        {
+          "name": "Create Pessoa USUARIO",
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"},{"key":"Authorization","value":"Bearer {{accessToken}}"}],"body":{"mode":"raw","raw":"{\n  \"name\": \"AtendenteDemo\",\n  \"email\": \"at.demo+{{$timestamp}}@local\",\n  \"type\": \"USUARIO\",\n  \"password\": \"SenhaForte123\"\n}"},"url":{"raw":"{{baseUrl}}/pessoas","host":["{{baseUrl}}"],"path":["pessoas"]}},
+          "event":[{"listen":"test","script":{"exec":[
+            "const json = pm.response.json();",
+            "pm.collectionVariables.set('usuarioId', json.id);",
+            "pm.collectionVariables.set('pessoaId', json.id);"
+          ],"type":"text/javascript"}}]
+        },
+        {
+          "name": "Create Pessoa USUARIO (com username)",
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"},{"key":"Authorization","value":"Bearer {{accessToken}}"}],"body":{"mode":"raw","raw":"{\n  \"user\": \"AtendenteDemo{{$timestamp}}\",\n  \"name\": \"Atendente Demo\",\n  \"email\": \"at.demo+{{$timestamp}}@local\",\n  \"type\": \"USUARIO\",\n  \"password\": \"SenhaForte123\"\n}"},"url":{"raw":"{{baseUrl}}/pessoas","host":["{{baseUrl}}"],"path":["pessoas"]}},
+          "event":[{"listen":"test","script":{"exec":[
+            "const json = pm.response.json();",
+            "pm.collectionVariables.set('usuarioId', json.id);",
+            "pm.collectionVariables.set('pessoaId', json.id);"
+          ],"type":"text/javascript"}}]
+        },
+        {
+          "name": "Get Pessoa",
+          "request": {"method":"GET","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":{"raw":"{{baseUrl}}/pessoas/{{pessoaId}}","host":["{{baseUrl}}"],"path":["pessoas","{{pessoaId}}"]}}
+        },
+        {
+          "name": "Get Me",
+          "request": {"method":"GET","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":{"raw":"{{baseUrl}}/pessoas/me","host":["{{baseUrl}}"],"path":["pessoas","me"]}}
+        },
+        {
+          "name": "Get Usuario",
+          "request": {"method":"GET","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":{"raw":"{{baseUrl}}/pessoas/{{usuarioId}}","host":["{{baseUrl}}"],"path":["pessoas","{{usuarioId}}"]}}
+        },
+        {
+          "name": "Update Usuario (name + password)",
+          "request": {"method":"PATCH","header":[{"key":"Content-Type","value":"application/json"},{"key":"Authorization","value":"Bearer {{accessToken}}"}],"body":{"mode":"raw","raw":"{\n  \"name\": \"AtendenteDemo 2\",\n  \"password\": \"NovaSenha456\"\n}"},"url":{"raw":"{{baseUrl}}/pessoas/{{usuarioId}}","host":["{{baseUrl}}"],"path":["pessoas","{{usuarioId}}"]}},
+          "event":[{"listen":"test","script":{"exec":[
+            "const json = pm.response.json(); pm.test('Atualizou usuario', ()=> pm.expect(json.id).to.be.a('number'));"
+          ],"type":"text/javascript"}}]
+        },
+        {
+          "name": "Update Pessoa",
+          "request": {"method":"PATCH","header":[{"key":"Content-Type","value":"application/json"},{"key":"Authorization","value":"Bearer {{accessToken}}"}],"body":{"mode":"raw","raw":"{\n  \"name\": \"Cliente Teste 2\"\n}"},"url":{"raw":"{{baseUrl}}/pessoas/{{pessoaId}}","host":["{{baseUrl}}"],"path":["pessoas","{{pessoaId}}"]}}
+        },
+        {
+          "name": "Delete Pessoa",
+          "request": {"method":"DELETE","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":{"raw":"{{baseUrl}}/pessoas/{{pessoaId}}","host":["{{baseUrl}}"],"path":["pessoas","{{pessoaId}}"]}}
+        }
+      ]
+    }
+    ,{
+      "name": "Chats",
+      "item": [
+        {
+          "name": "Listar Chats (fila)",
+          "request": {"method":"GET","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":{"raw":"{{baseUrl}}/chats?status=PENDING","host":["{{baseUrl}}"],"path":["chats"],"query":[{"key":"status","value":"PENDING"}]}},
+          "event":[{"listen":"test","script":{"exec":[
+            "const arr = pm.response.json();",
+            "pm.test('Lista chats', ()=> pm.expect(arr).to.be.an('array'));"
+          ],"type":"text/javascript"}}]
+        },
+        {
+          "name": "Inbound Cliente (novo chat BOT)",
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"},{"key":"Authorization","value":"Bearer {{accessToken}}"}],"body":{"mode":"raw","raw":"{\n  \"clientId\": {{pessoaId}},\n  \"content\": \"Olá, preciso de ajuda\"\n}"},"url":{"raw":"{{baseUrl}}/chats/inbound","host":["{{baseUrl}}"],"path":["chats","inbound"]}},
+          "event":[{"listen":"test","script":{"exec":[
+            "const json = pm.response.json();",
+            "if (json.chat && json.chat.id) pm.collectionVariables.set('chatId', json.chat.id);",
+            "pm.test('Inbound criou chat BOT', ()=> pm.expect(json.chat.status).to.be.oneOf(['BOT','PENDING','ACTIVE']));"
+          ],"type":"text/javascript"}}]
+        },
+        {
+          "name": "Bot Message",
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"},{"key":"Authorization","value":"Bearer {{accessToken}}"}],"body":{"mode":"raw","raw":"{\n  \"content\": \"Mensagem do bot\"\n}"},"url":{"raw":"{{baseUrl}}/chats/{{chatId}}/bot-message","host":["{{baseUrl}}"],"path":["chats","{{chatId}}","bot-message"]}},
+          "event":[{"listen":"test","script":{"exec":[
+            "const json = pm.response.json();",
+            "pm.test('Bot message', ()=> pm.expect(json.senderType).to.eql('BOT'));"
+          ],"type":"text/javascript"}}]
+        },
+        {
+          "name": "Request Human",
+          "request": {"method":"PATCH","header":[{"key":"Content-Type","value":"application/json"},{"key":"Authorization","value":"Bearer {{accessToken}}"}],"body":{"mode":"raw","raw":"{\n  \"departmentId\": {{departamentoId}}\n}"},"url":{"raw":"{{baseUrl}}/chats/{{chatId}}/request-human","host":["{{baseUrl}}"],"path":["chats","{{chatId}}","request-human"]}},
+          "event":[{"listen":"test","script":{"exec":[
+            "const json = pm.response.json();",
+            "pm.test('Chat PENDING', ()=> pm.expect(json.status).to.eql('PENDING'));"
+          ],"type":"text/javascript"}}]
+        },
+        {
+          "name": "Claim Chat",
+          "request": {"method":"PATCH","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":{"raw":"{{baseUrl}}/chats/{{chatId}}/claim","host":["{{baseUrl}}"],"path":["chats","{{chatId}}","claim"]}},
+          "event":[{"listen":"test","script":{"exec":[
+            "const json = pm.response.json();",
+            "pm.test('Chat ACTIVE', ()=> pm.expect(json.status).to.eql('ACTIVE'));"
+          ],"type":"text/javascript"}}]
+        },
+        {
+          "name": "Transfer Chat",
+          "request": {"method":"PATCH","header":[{"key":"Content-Type","value":"application/json"},{"key":"Authorization","value":"Bearer {{accessToken}}"}],"body":{"mode":"raw","raw":"{\n  \"departmentId\": {{departamentoId}}\n}"},"url":{"raw":"{{baseUrl}}/chats/{{chatId}}/transfer","host":["{{baseUrl}}"],"path":["chats","{{chatId}}","transfer"]}},
+          "event":[{"listen":"test","script":{"exec":[
+            "const json = pm.response.json();",
+            "pm.test('Transfer ok', ()=> pm.expect(json.departmentId).to.be.a('number'));"
+          ],"type":"text/javascript"}}]
+        },
+        {
+          "name": "Close Chat",
+          "request": {"method":"PATCH","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":{"raw":"{{baseUrl}}/chats/{{chatId}}/close","host":["{{baseUrl}}"],"path":["chats","{{chatId}}","close"]}},
+          "event":[{"listen":"test","script":{"exec":[
+            "const json = pm.response.json();",
+            "pm.test('Chat CLOSED', ()=> pm.expect(json.status).to.eql('CLOSED'));"
+          ],"type":"text/javascript"}}]
+        },
+        {
+          "name": "Criar Chat",
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"},{"key":"Authorization","value":"Bearer {{accessToken}}"}],"body":{"mode":"raw","raw":"{\n  \"clientId\": {{pessoaId}}\n}"},"url":{"raw":"{{baseUrl}}/chats","host":["{{baseUrl}}"],"path":["chats"]}},
+          "event":[{"listen":"test","script":{"exec":[
+            "const json = pm.response.json(); pm.collectionVariables.set('chatId', json.id);",
+            "pm.test('Chat criado', ()=> pm.expect(json.status).to.be.oneOf(['PENDING','BOT','ACTIVE']));"
+          ],"type":"text/javascript"}}]
+        },
+        {
+          "name": "Enviar Mensagem",
+          "request": {"method":"POST","header":[{"key":"Content-Type","value":"application/json"},{"key":"Authorization","value":"Bearer {{accessToken}}"}],"body":{"mode":"raw","raw":"{\n  \"chatId\": {{chatId}},\n  \"content\": \"Olá\",\n  \"senderType\": \"ATTENDANT\"\n}"},"url":{"raw":"{{baseUrl}}/chats/message","host":["{{baseUrl}}"],"path":["chats","message"]}},
+          "event":[{"listen":"test","script":{"exec":[
+            "const json = pm.response.json(); pm.collectionVariables.set('messageId', json.id);",
+            "pm.test('Mensagem enviada', ()=> { pm.expect(json.content).to.be.a('string'); pm.expect(json.senderType).to.be.oneOf(['ATTENDANT','CLIENT','BOT']); });"
+          ],"type":"text/javascript"}}]
+        },
+        {
+          "name": "Listar Mensagens",
+          "request": {"method":"GET","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":{"raw":"{{baseUrl}}/chats/{{chatId}}/messages","host":["{{baseUrl}}"],"path":["chats","{{chatId}}","messages"]}}
+        },
+        {
+          "name": "Listar Mensagens Paginado",
+          "request": {"method":"GET","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":{"raw":"{{baseUrl}}/chats/{{chatId}}/messages?limit=50&cursor=0","host":["{{baseUrl}}"],"path":["chats","{{chatId}}","messages"],"query":[{"key":"limit","value":"50"},{"key":"cursor","value":"0"}]}}
+        },
+        {
+          "name": "Marcar Mensagem Lida",
+          "request": {"method":"PATCH","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":{"raw":"{{baseUrl}}/chats/{{chatId}}/messages/{{messageId}}/read","host":["{{baseUrl}}"],"path":["chats","{{chatId}}","messages","{{messageId}}","read"]}}
+        },
+        {
+          "name": "Bulk Marcar Lidas",
+          "request": {"method":"PATCH","header":[{"key":"Authorization","value":"Bearer {{accessToken}}"}],"url":{"raw":"{{baseUrl}}/chats/{{chatId}}/messages/read-bulk/{{messageId}}","host":["{{baseUrl}}"],"path":["chats","{{chatId}}","messages","read-bulk","{{messageId}}"]}}
+        },
+        {
+          "name": "Editar Mensagem",
+          "request": {"method":"PATCH","header":[{"key":"Content-Type","value":"application/json"},{"key":"Authorization","value":"Bearer {{accessToken}}"}],"body":{"mode":"raw","raw":"{\n  \"content\": \"Olá (editado)\"\n}"},"url":{"raw":"{{baseUrl}}/chats/{{chatId}}/messages/{{messageId}}","host":["{{baseUrl}}"],"path":["chats","{{chatId}}","messages","{{messageId}}"]}}
+        }
+      ]
+    }
+  ]
+}

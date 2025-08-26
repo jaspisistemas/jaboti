@@ -1,0 +1,1222 @@
+<script src="https://cdn.tailwindcss.com"></script>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+/>
+<style>
+  .xprogress-bar {
+    position: relative;
+    height: 5px;
+    background-color: #ddd;
+    cursor: pointer;
+  }
+
+  .progress-knob {
+    position: absolute;
+    top: -5px;
+    /* Centralizando a bolinha verticalmente */
+    width: 10px;
+    height: 10px;
+    background-color: #000;
+    border-radius: 50%;
+    cursor: pointer;
+  }
+
+  .message-box {
+    background-color: #075e54;
+    padding: 10px;
+    border-radius: 10px;
+    width: 300px;
+    color: white;
+    font-family: Arial, sans-serif;
+    overflow: hidden;
+  }
+
+  .audio-message {
+    display: flex;
+    align-items: center;
+  }
+
+  .audio-message .profile-container {
+    position: relative;
+    width: 55px;
+    height: 55px;
+    margin-right: 10px;
+  }
+
+  .audio-message img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+  }
+
+  .audio-message .microphone-icon {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    font-size: 15px;
+    color: white;
+  }
+
+  .audio-message .play-button {
+    width: 30px;
+    height: 30px;
+    background-color: #25d366;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    margin-right: 10px;
+  }
+
+  .audio-message .xprogress-bar {
+    flex-grow: 1;
+    height: 5px;
+    background-color: #d3d3d3;
+    border-radius: 5px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .audio-message .xprogress-bar span {
+    display: block;
+    height: 100%;
+    width: 30%;
+    background-color: #128c7e;
+    border-radius: 5px;
+  }
+
+  .time {
+    font-size: 10px;
+    font-style: italic;
+  }
+
+  .image-message img,
+  .video-message video {
+    max-width: 500px;
+    width: 100%;
+    max-height: 350px;
+  }
+
+  .document-message {
+    padding: 10px;
+    margin-bottom: 10px;
+    background-color: #128c7e;
+    border-radius: 5px;
+  }
+
+  .document-message .conteudo {
+    padding-left: 10px;
+  }
+
+  .document-message .dsc {
+    font-size: 10px;
+    font-style: italic;
+    gap: 3px;
+  }
+
+  .document-message .down {
+    font-size: 25px;
+  }
+
+  .document-message .type {
+    font-size: 30px;
+  }
+
+  .flex {
+    display: flex;
+  }
+
+  .flex .space-between {
+    justify-content: space-between;
+  }
+
+  body {
+    font-family: "Inter", sans-serif;
+    background-color: #f9fafb;
+  }
+
+  .chat-messages {
+    overflow-y: auto;
+    scroll-behavior: smooth;
+  }
+
+  .message-bubble {
+    position: relative;
+    /* já deve existir! */
+    max-width: 500px;
+    border-radius: 1rem;
+    position: relative;
+    color: #575b5d;
+  }
+
+  .message-bubble .content {
+    white-space: pre-line;
+    word-wrap: break-word;
+  }
+
+  .message-bubble.client {
+    border-top-left-radius: 0;
+    background-color: #e5e7eb;
+  }
+
+  .message-bubble.agent {
+    border-top-right-radius: 0;
+    background-color: #dbeafe;
+  }
+
+  .session-divider {
+    position: relative;
+    text-align: center;
+    margin: 0.5rem 0;
+  }
+
+  .session-divider::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: #e5e7eb;
+    z-index: 1;
+  }
+
+  .session-info {
+    position: relative;
+    z-index: 2;
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border-radius: 1rem;
+    font-size: 0.875rem;
+  }
+
+  .private-session {
+    background-color: rgba(239, 68, 68, 0.1);
+    padding: 1rem;
+    border-radius: 0.5rem;
+    text-align: center;
+    color: #ef4444;
+  }
+
+  .file-attachment {
+    border: 1px solid #575b5d;
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+
+  .file-icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+  }
+
+  .image-attachment {
+    cursor: pointer;
+    max-height: 200px;
+    border-radius: 0.5rem;
+    overflow: hidden;
+  }
+
+  .image-attachment img {
+    width: 250px;
+    max-width: 250px;
+  }
+
+  .video-attachment {
+    border-radius: 0.5rem;
+    overflow: hidden;
+    max-width: 250px;
+  }
+
+  .audio-player {
+    width: 100%;
+    max-width: 250px;
+  }
+
+  .timestamp {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+  }
+
+  .audio-controls {
+    padding: 8px;
+    background: #f5f5f5;
+    border-radius: 8px;
+  }
+
+  .audio-play-button {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+  }
+
+  .audio-progress-bar {
+    position: relative;
+    cursor: pointer;
+  }
+
+  .audio-time-display {
+    min-width: 160px;
+    text-align: center;
+    font-family: monospace;
+  }
+
+  .audio-playing {
+    box-shadow: 0 0 0 2px #3b82f6;
+  }
+
+  .audio-progress-bar {
+    position: relative;
+    height: 8px;
+    background-color: #e5e7eb;
+    /* Tailwind gray-200 */
+    border-radius: 9999px;
+  }
+
+  .audio-progress-fill {
+    height: 100%;
+    background-color: #3b82f6;
+    /* Tailwind blue-500 */
+    border-radius: 9999px;
+    transition: width 0.1s linear;
+  }
+
+  .audio-progress-bar {
+    position: relative;
+    height: 8px;
+    background-color: #e5e7eb;
+    border-radius: 4px;
+    width: 100%;
+    cursor: pointer;
+  }
+
+  .audio-progress-fill {
+    position: absolute;
+    height: 100%;
+    background-color: #3b82f6;
+    border-radius: 4px;
+    width: 0%;
+    top: 0;
+    left: 0;
+    transition: width 0.1s linear;
+  }
+
+  .audio-progress-knob {
+    width: 12px;
+    height: 12px;
+    background-color: #3b82f6;
+    border-radius: 50%;
+    position: absolute;
+    top: 4px;
+    transform: translate(-50%, -50%);
+    cursor: pointer;
+    transition: left 0.05s linear;
+    z-index: 10;
+  }
+
+  .CellControleGrid {
+    height: 1px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+  }
+
+  .chat-container {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #chats {
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    scroll-behavior: smooth;
+  }
+
+  .flex-grow {
+    flex-grow: 1;
+  }
+
+  .relative {
+    position: relative;
+  }
+
+  .my-4 {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .mb-4 {
+    margin-bottom: 1rem;
+  }
+
+  .mt-2 {
+    margin-top: 0.5rem;
+  }
+
+  .flex {
+    display: flex;
+  }
+
+  .hidden {
+    display: none;
+  }
+
+  .w-full {
+    width: 100%;
+  }
+
+  .items-start {
+    align-items: flex-start;
+  }
+
+  .items-center {
+    align-items: center;
+  }
+
+  .justify-start {
+    justify-content: flex-start;
+  }
+
+  .justify-end {
+    justify-content: flex-end;
+  }
+
+  .justify-center {
+    justify-content: center;
+  }
+
+  .gap-1 {
+    gap: 0.25rem;
+  }
+
+  .rounded {
+    border-radius: 0.25rem;
+  }
+
+  .border {
+    border-width: 1px;
+  }
+
+  .border-blue-200 {
+    --tw-border-opacity: 1;
+    border-color: rgb(191 219 254 / var(--tw-border-opacity, 1));
+  }
+
+  .border-green-200 {
+    --tw-border-opacity: 1;
+    border-color: rgb(187 247 208 / var(--tw-border-opacity, 1));
+  }
+
+  .bg-gray-200 {
+    background-color: rgb(229 231 235 1);
+  }
+
+  .bg-blue-50 {
+    background-color: rgb(239 246 255 1);
+  }
+
+  .bg-green-50 {
+    background-color: rgb(240 253 244 1);
+  }
+
+  .p-3 {
+    padding: 0.75rem;
+  }
+
+  .px-4 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .py-2 {
+    padding-top: 0.5rem;
+    padding-bottom: 0.5rem;
+  }
+
+  .text-right {
+    text-align: right;
+  }
+
+  .text-sm {
+    font-size: 0.875rem;
+    line-height: 1.25rem;
+  }
+
+  .font-medium {
+    font-weight: 500;
+  }
+
+  .font-semibold {
+    font-weight: 600;
+  }
+
+  .text-gray-800 {
+    color: rgb(31 41 55 1);
+  }
+
+  .text-blue-700 {
+    color: rgb(29 78 216 1);
+  }
+
+  .text-green-500 {
+    color: rgb(34 197 94 1);
+  }
+
+  .text-green-700 {
+    color: rgb(21 128 61 1);
+  }
+
+  .text-red-500 {
+    color: rgb(239 68 68 1);
+  }
+
+  .shadow {
+    --tw-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --tw-shadow-colored: 0 1px 3px 0 var(--tw-shadow-color),
+      0 1px 2px -1px var(--tw-shadow-color);
+    box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000),
+      var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+  }
+
+  .hover\:bg-gray-300:hover {
+    background-color: rgb(209 213 219 1);
+  }
+  .select-none {
+    user-select: none;
+  }
+
+  .cursor-pointer {
+    cursor: pointer;
+  }
+
+  .highlight-blink {
+    animation: blink-highlight 1.5s ease-in-out;
+    background-color: rgba(0, 0, 0, 0.03); /* preto fraquinho/translúcido */
+    border-radius: 6px;
+  }
+
+  @keyframes blink-highlight {
+    0% {
+      background-color: rgba(0, 0, 0, 0.02);
+    }
+    25% {
+      background-color: rgba(0, 0, 0, 0.06);
+    }
+    50% {
+      background-color: rgba(0, 0, 0, 0.08);
+    }
+    75% {
+      background-color: rgba(0, 0, 0, 0.12);
+    }
+    100% {
+      background-color: transparent;
+    }
+  }
+</style>
+
+<!-- Estilos específicos do ChatGridUC -->
+<style>
+  /* Estilos para o ChatGridUC - Grid de Chats */
+  #chats {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    min-height: 300px;
+    position: relative;
+    z-index: 1;
+    max-height: 600px;
+    overflow-y: auto;
+    display: block;
+  }
+  
+  #chats .chat-item {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e9ecef;
+    transition: background 0.2s ease, transform 0.2s ease;
+    cursor: pointer;
+    position: relative;
+  }
+  
+  #chats .chat-item.selected {
+    background: #e3f2fd;
+    border-left: 4px solid #667eea;
+    transform: translateX(2px);
+  }
+  
+  #chats .chat-item:hover {
+    background: #f8f9fa;
+  }
+  
+  #chats .chat-item:last-child {
+    border-bottom: none;
+  }
+  
+  #chats .chat-content {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  
+  #chats .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    flex-shrink: 0;
+  }
+  
+  #chats .chat-info {
+    flex: 1;
+    min-width: 0;
+  }
+  
+  #chats .chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+  
+  #chats .contact-name {
+    font-weight: 600;
+    font-size: 15px;
+    color: #1a1a1a;
+  }
+  
+  #chats .chat-time-container {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-shrink: 0;
+  }
+  
+  #chats .chat-time {
+    font-size: 12px;
+    color: #666;
+  }
+  
+  #chats .messages-badge {
+    background: #e74c3c;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 7px;
+    border-radius: 12px;
+    min-width: 20px;
+    text-align: center;
+    display: inline-block;
+  }
+  
+  #chats .last-message {
+    font-size: 14px;
+    color: #444;
+    margin-bottom: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  #chats .chat-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #666;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  
+  #chats .meta-item {
+    display: flex;
+    align-items: center;
+    background: #f8f9fa;
+    padding: 3px 8px;
+    border-radius: 8px;
+    font-weight: 500;
+    color: #495057;
+    border: 1px solid #dee2e6;
+  }
+  
+  #chats .status-indicator {
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  #chats .status-indicator.status-ativo {
+    background: linear-gradient(135deg, #4caf50, #45a049);
+    color: white;
+    box-shadow: 0 2px 4px rgba(76, 175, 80, 0.3);
+  }
+  
+  #chats .status-indicator.status-pendente {
+    background: linear-gradient(135deg, #ff9800, #f57c00);
+    color: white;
+    box-shadow: 0 2px 4px rgba(255, 152, 0, 0.3);
+  }
+  
+  #chats .status-indicator.status-bot {
+    background: linear-gradient(135deg, #2196f3, #1976d2);
+    color: white;
+    box-shadow: 0 2px 4px rgba(33, 150, 243, 0.3);
+  }
+  
+  #chats .status-indicator.status-finalizado {
+    background: linear-gradient(135deg, #28a745, #218838);
+    color: white;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3);
+  }
+  
+  #chats .status-indicator.status-pausado {
+    background: linear-gradient(135deg, #6c757d, #545b62);
+    color: white;
+    box-shadow: 0 2px 4px rgba(108, 117, 125, 0.3);
+  }
+  
+  #chats .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+    background: #fff;
+    min-height: 150px;
+  }
+</style>
+
+<div class="chat-container">
+  <!-- ID padrão ChatGridUC: ChatGridUC_chatMessages_{instanceId} -->
+  <!-- Para instância padrão 'ChatGrid' fica: chats -->
+  <div id="chats"></div>
+</div>
+
+<Definition auto="false">
+
+    <Event name="onChatSelected" />
+    
+    <Property Name="currentItem" Type="sdt" Default="" />
+    <Property Name="id" Type="string" Default="ChatGrid" />
+    
+    <script Name="Show" When="AfterShow">
+// ChatGrid UserControl para Genexus - v1.0
+var self = this;
+
+// IDs únicos para esta instância com prefixo ChatGridUC
+// Simplificado para usar ID fixo 'chats'
+const chatContainerId = 'chats';
+
+console.log("Inicializando ChatGrid com ID:", chatContainerId);
+
+console.log("🎉 ChatGrid configurado para usar elemento com ID:", chatContainerId);
+
+// Classe principal do Grid de Chats
+class ChatGridApp {
+    constructor() {
+        try {
+            // State
+            this.chats = new Map(); // Map para armazenar chats por ID
+            this.selectedChatId = null;
+            this.isBatchLoading = false; // Flag para carregamento em lote
+            
+            // Aguardar o DOM estar pronto
+            this.waitForDOM();
+        } catch (e) {
+            console.error("Erro em constructor:", e);
+        }
+    }
+
+    // ===== INIT & DOM =====
+    waitForDOM() {
+        // Tentar encontrar o elemento com ID padronizado ChatGridUC, se não existir, tentar novamente
+        const checkDOM = () => {
+            this.chatContainer = document.getElementById(chatContainerId);
+            if (this.chatContainer) {
+                console.log("✅ Elemento ChatGridUC encontrado:", chatContainerId);
+                this.init();
+            } else {
+                console.log("⏳ Elemento ChatGridUC não encontrado, tentando novamente...", chatContainerId);
+                setTimeout(checkDOM, 100);
+            }
+        };
+        checkDOM();
+    }
+
+    init() {
+        this.setupEventListeners();
+    }
+
+    setupEventListeners() {
+        // Event delegation para cliques nos chats
+        this.chatContainer?.addEventListener("click", (event) => {
+            const chatItem = event.target.closest(".chat-item");
+            if (chatItem && chatItem.dataset.id) {
+                this.selectChat(chatItem.dataset.id);
+            }
+        });
+    }
+
+    // ===== CHAT MANAGEMENT =====
+    
+    adicionarChat(chat) {
+        try {
+            // Validar dados obrigatórios
+            if (!chat.id) {
+                console.error("Chat deve ter um ID");
+                return;
+            }
+
+            // Dados padrão
+            const chatData = {
+                id: chat.id,
+                nome: chat.nome || "Cliente",
+                foto: chat.foto || "https://randomuser.me/api/portraits/men/32.jpg",
+                ultimaMensagem: chat.ultimaMensagem || "Sem mensagens",
+                horario: chat.horario || this.getCurrentTime(),
+                horarioOrdenacao: chat.horarioOrdenacao || Date.now(), // timestamp para ordenação
+                departamento: chat.departamento || "Geral",
+                canal: chat.canal || "WhatsApp",
+                status: chat.status || "ativo",
+                mensagensNovas: chat.mensagensNovas || 0
+            };
+
+            // Adicionar ao Map
+            this.chats.set(chat.id, chatData);
+
+            // Renderizar apenas se não estiver em carregamento de lote
+            if (!this.isBatchLoading) {
+                this.renderizarChats();
+            }
+        } catch (e) {
+            console.error("Erro ao adicionar chat:", e);
+        }
+    }
+
+    adicionarChats(chats) {
+        try {
+            if (!Array.isArray(chats)) {
+                console.error("adicionarChats espera um array de chats");
+                return;
+            }
+
+            console.log("Iniciando carregamento de", chats.length, "chats em lote");
+            
+            // Flag para indicar carregamento em lote
+            this.isBatchLoading = true;
+
+            // Adicionar todos os chats sem renderizar
+            chats.forEach(chat => {
+                this.adicionarChat(chat);
+            });
+
+            // Finalizar carregamento em lote e renderizar uma única vez
+            setTimeout(() => {
+                this.isBatchLoading = false;
+                this.renderizarChats();
+                console.log("✅ Carregamento de", chats.length, "chats concluído");
+            }, 10);
+
+        } catch (e) {
+            this.isBatchLoading = false; // Garantir que flag seja limpa em caso de erro
+            console.error("Erro ao adicionar chats em lote:", e);
+        }
+    }
+
+    removerChat(chatId) {
+        try {
+            if (this.chats.has(chatId)) {
+                this.chats.delete(chatId);
+                
+                // Se o chat removido estava selecionado, limpar seleção
+                if (this.selectedChatId === chatId) {
+                    this.selectedChatId = null;
+                }
+                
+                this.renderizarChats();
+            }
+        } catch (e) {
+            console.error("Erro ao remover chat:", e);
+        }
+    }
+
+    atualizarChat(chatId, dadosAtualizacao) {
+        try {
+            if (!this.chats.has(chatId)) {
+                console.warn("Chat não encontrado para atualização:", chatId);
+                return;
+            }
+
+            const chatAtual = this.chats.get(chatId);
+            
+            // Atualizar campos fornecidos
+            const chatAtualizado = {
+                ...chatAtual,
+                ...dadosAtualizacao,
+                id: chatId // Garantir que ID não mude
+            };
+
+            // Se horário foi atualizado mas horarioOrdenacao não, gerar novo timestamp
+            if (dadosAtualizacao.horario && !dadosAtualizacao.horarioOrdenacao) {
+                chatAtualizado.horarioOrdenacao = Date.now();
+            }
+
+            this.chats.set(chatId, chatAtualizado);
+            this.renderizarChats();
+        } catch (e) {
+            console.error("Erro ao atualizar chat:", e);
+        }
+    }
+
+    adicionarMensagemNova(chatId, incremento = 1) {
+        try {
+            if (!this.chats.has(chatId)) {
+                console.warn("Chat não encontrado para incrementar mensagens:", chatId);
+                return;
+            }
+
+            const chat = this.chats.get(chatId);
+            chat.mensagensNovas = (chat.mensagensNovas || 0) + incremento;
+            
+            // Atualizar timestamp de ordenação para mover para o topo
+            chat.horarioOrdenacao = Date.now();
+            
+            this.chats.set(chatId, chat);
+            this.renderizarChats();
+        } catch (e) {
+            console.error("Erro ao adicionar mensagem nova:", e);
+        }
+    }
+
+    limparMensagensNovas(chatId) {
+        try {
+            if (!this.chats.has(chatId)) {
+                console.warn("Chat não encontrado para limpar mensagens:", chatId);
+                return;
+            }
+
+            const chat = this.chats.get(chatId);
+            chat.mensagensNovas = 0;
+            
+            this.chats.set(chatId, chat);
+            this.renderizarChats();
+        } catch (e) {
+            console.error("Erro ao limpar mensagens novas:", e);
+        }
+    }
+
+    selecionarChat(chatId) {
+        try {
+            if (!this.chats.has(chatId)) {
+                console.warn("Chat não encontrado para seleção:", chatId);
+                return;
+            }
+
+            this.selectedChatId = chatId;
+            this.atualizarVisualizacaoSelecao();
+            
+            // Buscar os dados do chat selecionado e atualizar currentItem
+            const chatData = this.chats.get(chatId);
+            if (chatData) {
+                self.currentItem = chatData;
+                console.log("Chat selecionado:", chatData);
+            }
+            
+            // Limpar mensagens novas do chat selecionado
+            this.limparMensagensNovas(chatId);
+            
+            // Disparar evento para o GenExus sem parâmetros
+            if (self.ononChatSelectedHandler) {
+                self.ononChatSelectedHandler();
+            }
+        } catch (e) {
+            console.error("Erro ao selecionar chat:", e);
+        }
+    }
+
+    limparSelecao() {
+        try {
+            this.selectedChatId = null;
+            this.atualizarVisualizacaoSelecao();
+        } catch (e) {
+            console.error("Erro ao limpar seleção:", e);
+        }
+    }
+
+    // ===== RENDERING =====
+    
+    renderizarChats() {
+        try {
+            if (!this.chatContainer) {
+                console.warn("ChatContainer não está disponível ainda");
+                return;
+            }
+
+            console.log("Renderizando chats, total:", this.chats.size);
+
+            // Converter Map para Array e ordenar por horarioOrdenacao (mais recente primeiro)
+            const chatsArray = Array.from(this.chats.values()).sort((a, b) => {
+                return b.horarioOrdenacao - a.horarioOrdenacao;
+            });
+
+            // Se não há chats, mostrar estado vazio
+            if (chatsArray.length === 0) {
+                this.chatContainer.innerHTML = `
+                    <div class="empty-state">
+                        <div style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;">💬</div>
+                        <h3>Nenhum chat disponível</h3>
+                        <p>Chats aparecerão aqui conforme forem adicionados</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Limpar container
+            this.chatContainer.innerHTML = "";
+
+            // Renderizar cada chat
+            chatsArray.forEach(chat => {
+                console.log("Renderizando chat:", chat.nome, chat.ultimaMensagem);
+                const chatElement = this.criarElementoChat(chat);
+                this.chatContainer.appendChild(chatElement);
+            });
+
+            // Atualizar visualização de seleção
+            this.atualizarVisualizacaoSelecao();
+        } catch (e) {
+            console.error("Erro ao renderizar chats:", e);
+        }
+    }
+
+    criarElementoChat(chat) {
+        const chatDiv = document.createElement("div");
+        chatDiv.className = "chat-item";
+        chatDiv.dataset.id = chat.id;
+
+        // Badge de mensagens novas
+        const badgeMensagens = chat.mensagensNovas > 0 
+            ? `<span class="messages-badge">${chat.mensagensNovas > 99 ? '99+' : chat.mensagensNovas}</span>` 
+            : '';
+
+        // Status indicator com classes CSS apropriadas
+        const statusClass = `status-${chat.status}`;
+        const statusText = this.getStatusText(chat.status);
+
+        chatDiv.innerHTML = `
+            <div class="chat-content">
+                <img src="${chat.foto}" alt="${chat.nome}" class="avatar">
+                <div class="chat-info">
+                    <div class="chat-header">
+                        <span class="contact-name">${chat.nome}</span>
+                        <div class="chat-time-container">
+                            <span class="chat-time">${chat.horario}</span>
+                            ${badgeMensagens}
+                        </div>
+                    </div>
+                    <div class="last-message">${chat.ultimaMensagem}</div>
+                    <div class="chat-meta">
+                        <span class="meta-item">${this.getDepartmentIcon(chat.departamento)} ${chat.departamento}</span>
+                        <span class="meta-item">${this.getChannelIcon(chat.canal)} ${chat.canal}</span>
+                        <span class="status-indicator ${statusClass}">${statusText}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        return chatDiv;
+    }
+
+    atualizarVisualizacaoSelecao() {
+        try {
+            // Remover seleção de todos os chats
+            this.chatContainer.querySelectorAll(".chat-item").forEach(item => {
+                item.classList.remove("selected");
+            });
+
+            // Adicionar seleção ao chat selecionado
+            if (this.selectedChatId) {
+                const chatElement = this.chatContainer.querySelector(`[data-id="${this.selectedChatId}"]`);
+                if (chatElement) {
+                    chatElement.classList.add("selected");
+                }
+            }
+        } catch (e) {
+            console.error("Erro ao atualizar visualização de seleção:", e);
+        }
+    }
+
+    // ===== UTILITIES =====
+    
+    getCurrentTime() {
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        return `${hours}:${minutes}`;
+    }
+
+    getStatusText(status) {
+        const statusMap = {
+            'ativo': 'Ativo',
+            'pendente': 'Pendente',
+            'bot': 'Bot',
+            'finalizado': 'Finalizado',
+            'pausado': 'Pausado'
+        };
+        return statusMap[status] || 'Ativo';
+    }
+
+    getDepartmentIcon(departamento) {
+        const iconMap = {
+            'Vendas': '📊',
+            'Suporte': '🔧',
+            'Financeiro': '💰',
+            'Geral': '💬'
+        };
+        return iconMap[departamento] || '💬';
+    }
+
+    getChannelIcon(canal) {
+        const iconMap = {
+            'WhatsApp': '💬',
+            'Messenger': '📘',
+            'Telegram': '📱',
+            'WebChat': '🌐',
+            'Email': '📧'
+        };
+        return iconMap[canal] || '💬';
+    }
+
+    // Método público para seleção externa
+    selectChat(chatId) {
+        this.selecionarChat(chatId);
+    }
+
+    // Obter dados de um chat específico
+    obterChat(chatId) {
+        return this.chats.get(chatId) || null;
+    }
+
+    // Obter todos os chats
+    obterTodosChats() {
+        return Array.from(this.chats.values());
+    }
+
+    // Limpar todos os chats
+    limparTodosChats() {
+        this.chats.clear();
+        this.selectedChatId = null;
+        this.renderizarChats();
+    }
+}
+
+// Instancia global para integração com Genexus/UserControl
+this.chatGridApp = new ChatGridApp();
+    </script>
+    
+    <script name="adicionarChat" parameters="chat">
+        try {
+            this.chatGridApp.adicionarChat(chat);
+        } catch (e) {
+            console.error("Erro em adicionarChat:", e);
+        }
+    </script>
+    
+    <script name="adicionarChats" parameters="chats">
+        try {
+            this.chatGridApp.adicionarChats(chats);
+        } catch (e) {
+            console.error("Erro em adicionarChats:", e);
+        }
+    </script>
+    
+    <script name="removerChat" parameters="chatId">
+        try {
+            this.chatGridApp.removerChat(chatId);
+        } catch (e) {
+            console.error("Erro em removerChat:", e);
+        }
+    </script>
+    
+    <script name="atualizarChat" parameters="chatId,dadosAtualizacao">
+        try {
+            this.chatGridApp.atualizarChat(chatId, dadosAtualizacao);
+        } catch (e) {
+            console.error("Erro em atualizarChat:", e);
+        }
+    </script>
+    
+    <script name="selecionarChat" parameters="chatId">
+        try {
+            this.chatGridApp.selecionarChat(chatId);
+        } catch (e) {
+            console.error("Erro em selecionarChat:", e);
+        }
+    </script>
+    
+    <script name="limparSelecao">
+        try {
+            this.chatGridApp.limparSelecao();
+        } catch (e) {
+            console.error("Erro em limparSelecao:", e);
+        }
+    </script>
+    
+    <script name="adicionarMensagemNova" parameters="chatId,incremento">
+        try {
+            this.chatGridApp.adicionarMensagemNova(chatId, incremento || 1);
+        } catch (e) {
+            console.error("Erro em adicionarMensagemNova:", e);
+        }
+    </script>
+    
+    <script name="limparMensagensNovas" parameters="chatId">
+        try {
+            this.chatGridApp.limparMensagensNovas(chatId);
+        } catch (e) {
+            console.error("Erro em limparMensagensNovas:", e);
+        }
+    </script>
+    
+    <script name="obterChat" parameters="chatId">
+        try {
+            return this.chatGridApp.obterChat(chatId);
+        } catch (e) {
+            console.error("Erro em obterChat:", e);
+            return null;
+        }
+    </script>
+    
+    <script name="obterTodosChats">
+        try {
+            return this.chatGridApp.obterTodosChats();
+        } catch (e) {
+            console.error("Erro em obterTodosChats:", e);
+            return [];
+        }
+    </script>
+    
+    <script name="limparTodosChats">
+        try {
+            this.chatGridApp.limparTodosChats();
+        } catch (e) {
+            console.error("Erro em limparTodosChats:", e);
+        }
+    </script>
+
+</Definition>

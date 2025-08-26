@@ -1,0 +1,64 @@
+{
+  "event": "messages.upsert",
+  "instance": "Jaboti554497618592",
+  "data": {
+    "key": {
+      "remoteJid": "554498457962@s.whatsapp.net",
+      "fromMe": false,
+      "id": "3EB0AD85120881D303631F"
+    },
+    "pushName": "Jaspi Sistemas",
+    "status": "DELIVERY_ACK",
+    "message": {
+      "messageContextInfo": {
+        "deviceListMetadata": {
+          "senderKeyHash": "KzrSIPV3/V3Fcg==",
+          "senderTimestamp": "1747910510",
+          "senderAccountType": "E2EE",
+          "receiverAccountType": "E2EE",
+          "recipientKeyHash": "wj61vAyNbdekEg==",
+          "recipientTimestamp": "1748006939"
+        },
+        "deviceListMetadataVersion": 2,
+        "messageSecret": "GV13lUbSeeR70W4uasicIQccUAeHZMmkt8+NEm1uyLU="
+      },
+      "conversation": "iiiiiiiihullllllllllllll ta respondendo o text txt documento olha laaaaaaaaaa"
+    },
+    "contextInfo": {
+      "stanzaId": "3EB0D1AF0D0BB1B96252AD",
+      "participant": "554497618592@s.whatsapp.net",
+      "quotedMessage": {
+        "documentMessage": {
+          "url": "https://mmg.whatsapp.net/v/t62.7119-24/34520328_5025311047694330_415337020332077800_n.enc?ccb=11-4&oh=01_Q5Aa1gHpX2fAix7RYWFKiQAnBIZShf_tRH6ds_LLyZKB3Yx33g&oe=685C0E78&_nc_sid=5e03e0&mms3=true",
+          "mimetype": "text/plain",
+          "fileSha256": "vAuVymokKFkie27a2ol3lwBJ4TT+CqLSi9MvkR6V7iU=",
+          "fileLength": "168",
+          "pageCount": 0,
+          "mediaKey": "hTNwwdYNZQUyX7VLVC6LPMccfW4m5lU3Db8slW1xh9Y=",
+          "fileEncSha256": "v/GBg1XOIFs3zI9M/CpHleCaFXgH4YTP2Q43SeOt46o=",
+          "directPath": "/v/t62.7119-24/34520328_5025311047694330_415337020332077800_n.enc?ccb=11-4&oh=01_Q5Aa1gHpX2fAix7RYWFKiQAnBIZShf_tRH6ds_LLyZKB3Yx33g&oe=685C0E78&_nc_sid=5e03e0",
+          "mediaKeyTimestamp": "1748279099",
+          "contactVcard": false,
+          "caption": "sdt.txt"
+        },
+        "messageContextInfo": {
+          "messageSecret": "mepSk8C20medxRghb0DNXlVhPtIGf3R4GyOQgJoKeEY="
+        }
+      },
+      "ephemeralSettingTimestamp": "1701368381",
+      "disappearingMode": {
+        "initiator": "CHANGED_IN_CHAT",
+        "trigger": "CHAT_SETTING"
+      }
+    },
+    "messageType": "conversation",
+    "messageTimestamp": 1748282282,
+    "instanceId": "46b40e16-21ae-458f-abfe-ae1dc69b4b7b",
+    "source": "web"
+  },
+  "destination": "http://192.168.100.46/JaspiZAP.NetEnvironment/WhatsAPI.EvolutionAPIAuth.aspx/messages-upsert",
+  "date_time": "2025-05-26T14:58:02.569Z",
+  "sender": "554497618592@s.whatsapp.net",
+  "server_url": "http://localhost:2525",
+  "apikey": "C2D5FC1F-0D37-4180-ADC8-C25ACA0208E6"
+}

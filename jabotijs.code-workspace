@@ -1,0 +1,325 @@
+{
+  "folders": [
+    {
+      "name": "📁 Root",
+      "path": "."
+    },
+    {
+      "name": "🎨 Frontend",
+      "path": "./jaboti_frontend"
+    },
+    {
+      "name": "⚙️ Backend",
+      "path": "./jaboti_backend"
+    },
+    {
+      "name": "🔗 Shared",
+      "path": "./shared"
+    }
+  ],
+  "settings": {
+    "typescript.preferences.importModuleSpecifier": "relative",
+    "typescript.suggest.autoImports": true,
+    "typescript.updateImportsOnFileMove.enabled": "always",
+    
+    // Configurações de formatação
+    "editor.formatOnSave": true,
+    "editor.formatOnPaste": true,
+    "editor.codeActionsOnSave": {
+      "source.fixAll.eslint": "explicit",
+      "source.organizeImports": "explicit"
+    },
+    
+    // Configurações de linting
+    "eslint.workingDirectories": [
+      "./jaboti_frontend",
+      "./jaboti_backend"
+    ],
+    "eslint.validate": [
+      "javascript",
+      "javascriptreact",
+      "typescript",
+      "typescriptreact"
+    ],
+    
+    // Configurações de TypeScript
+    "typescript.preferences.includePackageJsonAutoImports": "auto",
+    "typescript.suggest.paths": true,
+    
+    // Configurações de arquivos
+    "files.exclude": {
+      "**/node_modules": true,
+      "**/dist": true,
+      "**/build": true,
+      "**/.git": true,
+      "**/.DS_Store": true,
+      "**/Thumbs.db": true
+    },
+    
+    // Configurações de busca
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/dist": true,
+      "**/build": true,
+      "**/coverage": true,
+      "**/.git": true,
+      "**/uploads": true
+    },
+    
+    // Configurações de terminal
+    "terminal.integrated.cwd": "${workspaceFolder}",
+    "terminal.integrated.env.windows": {
+      "PATH": "${env:PATH};${workspaceFolder}/node_modules/.bin"
+    },
+    
+    // Configurações de debug
+    "debug.node.autoAttach": "on",
+    "debug.javascript.autoAttachFilter": "smart",
+    
+    // Configurações de extensões
+    "extensions.ignoreRecommendations": false,
+    "extensions.autoUpdate": true,
+    
+    // Configurações de workspace
+    "workbench.editor.enablePreview": false,
+    "workbench.editor.enablePreviewFromQuickOpen": false,
+    
+    // Configurações de Git
+    "git.autofetch": true,
+    "git.confirmSync": false,
+    "git.enableSmartCommit": true,
+    
+    // Configurações de Docker
+    "docker.containersView.showAllContainers": true,
+    "docker.imagesView.showAllImages": true,
+    
+    // Configurações de testes
+    "jest.autoRun": {
+      "watch": false,
+      "onStartup": ["all-tests"]
+    },
+    "jest.workingDirectory": "${workspaceFolder}",
+    
+    // Configurações específicas do projeto
+    "files.associations": {
+      "*.env*": "dotenv",
+      "docker-compose*.yml": "dockercompose",
+      "*.prisma": "prisma"
+    },
+    
+    // Configurações de formatação específicas
+    "[typescript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.tabSize": 2
+    },
+    "[typescriptreact]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.tabSize": 2
+    },
+    "[javascript]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.tabSize": 2
+    },
+    "[javascriptreact]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.tabSize": 2
+    },
+    "[json]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.tabSize": 2
+    },
+    "[css]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.tabSize": 2
+    },
+    "[scss]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.tabSize": 2
+    },
+    "[html]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.tabSize": 2
+    },
+    "[markdown]": {
+      "editor.defaultFormatter": "esbenp.prettier-vscode",
+      "editor.tabSize": 2
+    }
+  },
+  "extensions": {
+    "recommendations": [
+      "ms-vscode.vscode-typescript-next",
+      "bradlc.vscode-tailwindcss",
+      "ms-vscode.vscode-react-native",
+      "formulahendry.auto-rename-tag",
+      "formulahendry.auto-close-tag",
+      "esbenp.prettier-vscode",
+      "dbaeumer.vscode-eslint",
+      "ms-vscode.vscode-json",
+      "eamodio.gitlens",
+      "mhutchie.git-graph",
+      "ms-azuretools.vscode-docker",
+      "cweijan.vscode-database-client2",
+      "mtxr.sqltools",
+      "mtxr.sqltools-driver-pg",
+      "orta.vscode-jest",
+      "ms-vscode.vscode-js-debug",
+      "ms-vscode.vscode-npm-script",
+      "christian-kohler.path-intellisense",
+      "ms-vscode.vscode-import-cost",
+      "pkief.material-icon-theme",
+      "zhuangtongfa.material-theme",
+      "redhat.vscode-yaml",
+      "ms-vscode.vscode-markdown",
+      "prisma.prisma"
+    ]
+  },
+  "tasks": {
+    "version": "2.0.0",
+    "tasks": [
+      {
+        "label": "🚀 Dev - Frontend + Backend",
+        "type": "shell",
+        "command": "npm",
+        "args": ["run", "dev"],
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": true,
+          "clear": false
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "🎨 Dev - Frontend",
+        "type": "shell",
+        "command": "npm",
+        "args": ["run", "dev:frontend"],
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": true,
+          "clear": false
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "⚙️ Dev - Backend",
+        "type": "shell",
+        "command": "npm",
+        "args": ["run", "dev:backend"],
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": true,
+          "clear": false
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "🏗️ Build - Todos",
+        "type": "shell",
+        "command": "npm",
+        "args": ["run", "build"],
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": true,
+          "clear": false
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "🧪 Test - Todos",
+        "type": "shell",
+        "command": "npm",
+        "args": ["run", "test"],
+        "group": "test",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": true,
+          "clear": false
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "🐳 Docker - Up",
+        "type": "shell",
+        "command": "npm",
+        "args": ["run", "docker:up"],
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": true,
+          "clear": false
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "🐳 Docker - Down",
+        "type": "shell",
+        "command": "npm",
+        "args": ["run", "docker:down"],
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": true,
+          "clear": false
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "🗄️ DB - Migrate",
+        "type": "shell",
+        "command": "npm",
+        "args": ["run", "db:migrate"],
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": true,
+          "clear": false
+        },
+        "problemMatcher": []
+      },
+      {
+        "label": "🗄️ DB - Seed",
+        "type": "shell",
+        "command": "npm",
+        "args": ["run", "db:seed"],
+        "group": "build",
+        "presentation": {
+          "echo": true,
+          "reveal": "always",
+          "focus": false,
+          "panel": "shared",
+          "showReuseMessage": true,
+          "clear": false
+        },
+        "problemMatcher": []
+      }
+    ]
+  }
+}

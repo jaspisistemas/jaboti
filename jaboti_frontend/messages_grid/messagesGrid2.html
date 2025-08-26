@@ -1,0 +1,1580 @@
+<Definition auto="false">
+
+    <Event name="onMessageDoubleClick" />
+    <Event name="onMoreMessageClick" />
+    
+    <Property Name="currentItem" Type="sdt" Default="" />
+    <Property Name="id" Type="string" Default="MessagesGrid" />
+    
+    <script Name="Show" When="AfterShow">
+// MessagesGrid UserControl para Genexus - v1.0
+var self = this;
+
+// Classe principal do Grid de Mensagens
+class MessagesGridApp {
+    constructor() {
+        try {
+            // State
+            this.messageHistory = [];
+            this.currentAudioElement = null;
+            this.currentAudioContainer = null;
+            this.floatingIsDragging = false;
+            this.pendingMessages = 0;
+            this.imageViewer = null;
+            this.audioProgressInterval = null;
+            this.isLoadingMoreMessages = false;
+            this.isBatchLoading = false; // Flag para carregamento em lote
+            
+            // DOM Elements
+            this.cacheDomElements();
+            
+            // Inicialização
+            this.init();
+        } catch (e) {
+            console.error("Erro em constructor:", e);
+        }
+    }
+
+    // ===== INIT & DOM =====
+    init() {
+        this.setupEventListeners();
+        this.setupFloatingAudioControl();
+        this.setupImageViewer();
+        
+        // Observar mudanças no container para fazer scroll inicial
+        this.setupInitialScrollObserver();
+    }
+
+    setupInitialScrollObserver() {
+        // Flag para controlar se já fez o scroll inicial
+        this.hasInitialScrolled = false;
+        
+        // Observer para detectar quando mensagens são adicionadas
+        if (this.messagesContainer) {
+            const observer = new MutationObserver(() => {
+                if (!this.hasInitialScrolled && this.messagesContainer.children.length > 0) {
+                    // Aguardar um pouco para o layout se estabilizar
+                    setTimeout(() => {
+                        this.performInitialScroll();
+                    }, 50);
+                }
+            });
+            
+            observer.observe(this.messagesContainer, {
+                childList: true,
+                subtree: true
+            });
+            
+            // Cleanup do observer após 5 segundos (não precisa mais)
+            setTimeout(() => {
+                observer.disconnect();
+            }, 5000);
+        }
+        
+        // Backup: tentar scroll inicial mesmo sem mensagens após 200ms
+        setTimeout(() => {
+            if (!this.hasInitialScrolled) {
+                this.performInitialScroll();
+            }
+        }, 200);
+    }
+
+    performInitialScroll() {
+        if (!this.messagesContainer) return;
+        
+        // Sempre permitir scroll quando chamado explicitamente (ex: após batch loading)
+        if (arguments.length > 0 && arguments[0] === true) {
+            // Force scroll - ignorar flag hasInitialScrolled
+        } else {
+            // Verificar flag apenas para auto-scroll
+            if (this.hasInitialScrolled) return;
+        }
+        
+        // Marcar que já tentou fazer scroll inicial
+        this.hasInitialScrolled = true;
+        
+        // Force scroll to bottom regardless of content
+        requestAnimationFrame(() => {
+            this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+            console.log("Initial scroll performed:", this.messagesContainer.scrollTop, this.messagesContainer.scrollHeight);
+        });
+    }
+
+    cacheDomElements() {
+        this.messagesContainer = document.getElementById("messagesContainer");
+        this.newMessagesIndicator = document.getElementById("newMessagesIndicator");
+        this.newMessagesCount = document.getElementById("newMessagesCount");
+        this.scrollToBottomBtn = document.getElementById("scrollToBottomBtn");
+        
+        // Elementos da barra flutuante de áudio
+        this.floatingControl = document.getElementById("floatingAudioControl");
+        this.locateAudioBtn = document.getElementById("locateAudioBtn");
+        this.floatingPlayBtn = document.getElementById("floatingPlayBtn");
+        this.floatingProgressBar = document.getElementById("floatingProgressBar");
+        this.floatingProgressFill = document.getElementById("floatingProgressFill");
+        this.floatingProgressKnob = document.getElementById("floatingProgressKnob");
+        this.floatingTimeDisplay = document.getElementById("floatingTimeDisplay");
+        this.floatingSpeedBtn = document.getElementById("floatingSpeedBtn");
+        this.closeFloatingBtn = document.getElementById("closeFloatingBtn");
+    }
+
+    setupEventListeners() {
+        // Clique no indicador de novas mensagens
+        this.newMessagesIndicator?.addEventListener("click", () => {
+            this.scrollToBottom();
+            this.hideNewMessagesIndicator();
+        });
+
+        // Clique no botão de scroll para o final
+        this.scrollToBottomBtn?.addEventListener("click", () => {
+            this.scrollToBottom();
+            this.hideScrollToBottomBtn();
+        });
+
+        // Detecta quando o usuário faz scroll manual
+        this.messagesContainer.addEventListener("scroll", () => {
+            // Verifica se está no topo para carregar mais mensagens
+            if (this.isNearTop() && !this.isLoadingMoreMessages) {
+                this.isLoadingMoreMessages = true;
+                // Disparar evento para o GenExus carregar mais mensagens
+                self.ononMoreMessageClickHandler?.();
+            }
+            
+            if (this.isNearBottom()) {
+                this.hideNewMessagesIndicator();
+                this.hideScrollToBottomBtn();
+            } else {
+                this.showScrollToBottomBtn();
+            }
+        });
+
+        // Duplo clique para responder mensagem
+        this.messagesContainer.addEventListener("dblclick", (event) => {
+            const messageElement = event.target.closest("[data-id]");
+            if (messageElement && messageElement.dataset.id) {
+                self.ononMessageDoubleClickHandler?.(messageElement.dataset.id);
+            }
+        });
+    }
+
+    setupImageViewer() {
+        try {
+            this.imageViewer = new ImageViewer();
+            console.log("ImageViewer inicializado com sucesso");
+        } catch (e) {
+            console.error("Erro ao inicializar ImageViewer:", e);
+            // Tentar novamente após um delay
+            setTimeout(() => {
+                try {
+                    this.imageViewer = new ImageViewer();
+                    console.log("ImageViewer inicializado com sucesso (segunda tentativa)");
+                } catch (e2) {
+                    console.error("Erro na segunda tentativa de inicializar ImageViewer:", e2);
+                }
+            }, 1000);
+        }
+    }
+
+    setupFloatingAudioControl() {
+        // Event listeners para a barra flutuante
+        this.locateAudioBtn?.addEventListener("click", () => {
+            this.scrollToCurrentAudio();
+        });
+
+        this.floatingPlayBtn?.addEventListener("click", () => {
+            if (this.currentAudioElement) {
+                this.toggleAudioPlayback(this.currentAudioElement);
+            }
+        });
+
+        this.floatingSpeedBtn?.addEventListener("click", () => {
+            if (this.currentAudioElement) {
+                const container = this.currentAudioElement.closest(".audio-message");
+                const speedButton = container?.querySelector(".audio-speed-button");
+                this.cycleAudioSpeed(this.currentAudioElement, speedButton);
+            }
+        });
+
+        this.closeFloatingBtn?.addEventListener("click", () => {
+            this.closeFloatingControl();
+        });
+
+        // Controle de progresso na barra flutuante
+        this.setupFloatingProgressControls();
+
+        // Listener para a tecla ESC
+        document.addEventListener("keydown", (e) => {
+            if (e.key === "Escape" && this.floatingControl && this.floatingControl.classList.contains("show")) {
+                this.closeFloatingControl();
+            }
+        });
+
+        // Listener para scroll do container de mensagens
+        this.messagesContainer?.addEventListener("scroll", () => {
+            this.checkFloatingControlVisibility();
+        });
+    }
+
+    setupFloatingProgressControls() {
+        // Mostrar knob no hover da barra flutuante
+        this.floatingProgressBar?.addEventListener("mouseenter", () => {
+            if (this.floatingProgressKnob) {
+                this.floatingProgressKnob.style.opacity = "1";
+            }
+        });
+
+        this.floatingProgressBar?.addEventListener("mouseleave", () => {
+            if (this.floatingProgressKnob && !this.floatingIsDragging) {
+                this.floatingProgressKnob.style.opacity = "0";
+            }
+        });
+
+        // Controle de progresso na barra flutuante (click e drag)
+        const handleFloatingProgressClick = (e) => {
+            if (this.floatingIsDragging) return;
+            
+            if (this.currentAudioElement && this.currentAudioElement.duration) {
+                const rect = this.floatingProgressBar.getBoundingClientRect();
+                const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+                const newTime = percent * this.currentAudioElement.duration;
+                if (isFinite(newTime) && !isNaN(newTime)) {
+                    this.currentAudioElement.currentTime = newTime;
+                }
+            }
+        };
+
+        const handleFloatingDrag = (e) => {
+            e.preventDefault();
+            this.floatingIsDragging = true;
+            if (this.floatingProgressKnob) this.floatingProgressKnob.style.opacity = "1";
+            
+            const mouseMoveHandler = (moveEvent) => {
+                if (!this.floatingIsDragging || !this.currentAudioElement) return;
+                
+                const rect = this.floatingProgressBar.getBoundingClientRect();
+                const percent = Math.max(0, Math.min(1, (moveEvent.clientX - rect.left) / rect.width));
+                
+                // Atualizar visualmente
+                this.floatingProgressFill.style.width = `${percent * 100}%`;
+                
+                // Atualizar posição do knob
+                if (this.floatingProgressKnob) {
+                    this.floatingProgressKnob.style.left = `${percent * 100}%`;
+                }
+                
+                if (this.currentAudioElement.duration && isFinite(this.currentAudioElement.duration)) {
+                    const previewTime = percent * this.currentAudioElement.duration;
+                    const current = this.formatTime(previewTime);
+                    const total = this.formatTime(this.currentAudioElement.duration);
+                    this.floatingTimeDisplay.textContent = `${current} / ${total}`;
+                }
+            };
+            
+            const mouseUpHandler = (upEvent) => {
+                if (!this.floatingIsDragging) return;
+                
+                this.floatingIsDragging = false;
+                
+                if (this.currentAudioElement && this.currentAudioElement.duration) {
+                    const rect = this.floatingProgressBar.getBoundingClientRect();
+                    const percent = Math.max(0, Math.min(1, (upEvent.clientX - rect.left) / rect.width));
+                    const newTime = percent * this.currentAudioElement.duration;
+                    if (isFinite(newTime) && !isNaN(newTime)) {
+                        this.currentAudioElement.currentTime = newTime;
+                    }
+                }
+                
+                // Esconder knob se não estiver no hover da barra
+                if (!this.floatingProgressBar.matches(':hover') && this.floatingProgressKnob) {
+                    this.floatingProgressKnob.style.opacity = "0";
+                }
+                
+                document.removeEventListener("mousemove", mouseMoveHandler);
+                document.removeEventListener("mouseup", mouseUpHandler);
+            };
+            
+            document.addEventListener("mousemove", mouseMoveHandler);
+            document.addEventListener("mouseup", mouseUpHandler);
+        };
+
+        // Drag do knob flutuante
+        this.floatingProgressKnob?.addEventListener("mousedown", handleFloatingDrag);
+
+        // Drag da barra também (quando não clicar diretamente no knob)
+        this.floatingProgressBar?.addEventListener("mousedown", (e) => {
+            // Só permitir se não clicou diretamente no knob
+            if (e.target === this.floatingProgressKnob) return;
+            handleFloatingDrag(e);
+        });
+
+        this.floatingProgressBar?.addEventListener("click", handleFloatingProgressClick);
+    }
+
+    // ===== UTILITIES =====
+    padNumber(num) {
+        return num.toString().padStart(2, "0");
+    }
+
+    getCurrentTimestamp() {
+        const now = new Date();
+        return `${this.padNumber(now.getHours())}:${this.padNumber(now.getMinutes())}`;
+    }
+
+    generateProtocol() {
+        const now = new Date();
+        return `${now.getFullYear()}${this.padNumber(now.getMonth() + 1)}${this.padNumber(now.getDate())}${String(Math.floor(Math.random() * 10000)).padStart(5, "0")}`;
+    }
+
+    scrollToBottom() {
+        // Usar requestAnimationFrame para garantir que o DOM foi atualizado
+        requestAnimationFrame(() => {
+            if (this.messagesContainer) {
+                this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+                // Esconder o botão após fazer scroll
+                this.hideScrollToBottomBtn();
+            }
+        });
+    }
+
+    ensureScrollToBottom() {
+        // Método para garantir que sempre role para o final quando necessário
+        if (this.messagesContainer) {
+            // Sempre fazer scroll, independente do conteúdo
+            requestAnimationFrame(() => {
+                this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+            });
+        }
+    }
+
+    isNearBottom() {
+        const threshold = 100;
+        const container = this.messagesContainer;
+        return (
+            container.scrollHeight - container.scrollTop - container.clientHeight <= threshold
+        );
+    }
+
+    isNearTop() {
+        const threshold = 100;
+        const container = this.messagesContainer;
+        return container.scrollTop <= threshold;
+    }
+
+    scrollToAndHighlightMessage(id) {
+        const messageDiv = this.messagesContainer.querySelector(`[data-id="${id}"]`);
+        if (messageDiv) {
+            messageDiv.scrollIntoView({ behavior: "smooth", block: "center" });
+            messageDiv.classList.add("highlight-blink");
+            setTimeout(() => {
+                messageDiv.classList.remove("highlight-blink");
+            }, 1500);
+        }
+    }
+
+    showNewMessagesIndicator() {
+        this.newMessagesIndicator.style.display = "block";
+        this.updateNewMessagesCount();
+    }
+
+    hideNewMessagesIndicator() {
+        this.newMessagesIndicator.style.display = "none";
+        this.pendingMessages = 0;
+    }
+
+    updateNewMessagesCount() {
+        const text = this.pendingMessages === 1 ? "1 nova mensagem" : `${this.pendingMessages} novas mensagens`;
+        this.newMessagesCount.textContent = text;
+    }
+
+    // Controle do botão de scroll para o final
+    showScrollToBottomBtn() {
+        if (this.scrollToBottomBtn && !this.isNearBottom()) {
+            this.scrollToBottomBtn.classList.remove('hide');
+            this.scrollToBottomBtn.classList.add('show');
+            this.scrollToBottomBtn.style.display = 'flex';
+        }
+    }
+
+    hideScrollToBottomBtn() {
+        if (this.scrollToBottomBtn) {
+            this.scrollToBottomBtn.classList.remove('show');
+            this.scrollToBottomBtn.classList.add('hide');
+            // Esconder após a animação
+            setTimeout(() => {
+                if (this.scrollToBottomBtn.classList.contains('hide')) {
+                    this.scrollToBottomBtn.style.display = 'none';
+                    this.scrollToBottomBtn.classList.remove('hide');
+                }
+            }, 300);
+        }
+    }
+
+    // ===== MESSAGES =====
+    addMessage(message, forceScroll = false) {
+        this.messageHistory.push(message);
+        this.renderMessage(message);
+
+        // Se estiver em batch loading, não fazer scroll individual
+        if (this.isBatchLoading) {
+            return;
+        }
+
+        // Se for a primeira mensagem ou forceScroll, sempre fazer scroll para o final
+        if (forceScroll || this.messageHistory.length === 1) {
+            // Garantir scroll inicial imediato para primeira mensagem
+            requestAnimationFrame(() => {
+                this.messagesContainer.scrollTop = this.messagesContainer.scrollHeight;
+                this.hideNewMessagesIndicator();
+                // Marcar que já fez scroll inicial
+                this.hasInitialScrolled = true;
+            });
+            return;
+        }
+
+        if (this.isNearBottom()) {
+            setTimeout(() => {
+                this.scrollToBottom();
+                this.hideNewMessagesIndicator();
+            }, 50);
+        } else {
+            this.pendingMessages++;
+            this.showNewMessagesIndicator();
+        }
+    }
+
+    insertOldMessages(messages) {
+        if (!Array.isArray(messages) || messages.length === 0) {
+            this.isLoadingMoreMessages = false;
+            return;
+        }
+        
+        // Guardar posição atual do scroll
+        const prevScrollHeight = this.messagesContainer.scrollHeight;
+        const prevScrollTop = this.messagesContainer.scrollTop;
+        
+        // Adicionar mensagens no início do histórico (ordem inversa para manter cronologia)
+        messages.reverse().forEach((message) => {
+            this.messageHistory.unshift(message);
+            
+            // Renderizar baseado no tipo
+            switch (message.type) {
+                case "message":
+                    this.renderMessageAtBeginning(message);
+                    break;
+                case "session":
+                    this.renderSessionAtBeginning(message);
+                    break;
+            }
+        });
+        
+        // Manter a posição do scroll para não "pular" a visualização
+        requestAnimationFrame(() => {
+            const newScrollHeight = this.messagesContainer.scrollHeight;
+            const scrollDifference = newScrollHeight - prevScrollHeight;
+            
+            // Ajustar posição do scroll para manter a visualização
+            this.messagesContainer.scrollTop = prevScrollTop + scrollDifference;
+            
+            // Permitir novo carregamento de mensagens
+            this.isLoadingMoreMessages = false;
+        });
+    }
+
+    addSession(session) {
+        this.messageHistory.push(session);
+        this.renderSession(session);
+    }
+
+    routeMessage(message) {
+        switch (message.type) {
+            case "message":
+                this.addMessage(message);
+                break;
+            case "session":
+                this.addSession(message);
+                break;
+        }
+    }
+
+    clearMessages() {
+        // 🧹 Limpa o array de mensagens
+        this.messageHistory = [];
+
+        // 🗑️ Remove tudo da UI
+        this.messagesContainer.innerHTML = "";
+
+        // ✅ Resetar controle de áudio ativo, se quiser
+        if (this.currentAudioElement) {
+            this.currentAudioElement.pause();
+            clearInterval(this.audioProgressInterval);
+            this.currentAudioElement = null;
+            this.audioProgressInterval = null;
+        }
+    }
+
+    renderMessage(item) {
+        const messageDiv = this.createMessageElement(item);
+        this.messagesContainer.appendChild(messageDiv);
+    }
+
+    renderMessageAtBeginning(item) {
+        const messageDiv = this.createMessageElement(item);
+        
+        // Inserir no início do container de forma mais segura
+        try {
+            const firstChild = this.messagesContainer.firstChild;
+            if (firstChild) {
+                this.messagesContainer.insertBefore(messageDiv, firstChild);
+            } else {
+                this.messagesContainer.appendChild(messageDiv);
+            }
+        } catch (e) {
+            console.warn("Erro ao inserir mensagem no início, adicionando no final:", e);
+            this.messagesContainer.appendChild(messageDiv);
+        }
+    }
+
+    createMessageElement(item) {
+        const messageDiv = document.createElement("div");
+        messageDiv.className = item.senderIsMe ? "message sent" : "message received";
+        messageDiv.dataset.id = item.id;
+
+        const contentDiv = document.createElement("div");
+        contentDiv.className = "message-content";
+
+        const bubbleDiv = document.createElement("div");
+        bubbleDiv.className = "message-bubble";
+        bubbleDiv.dataset.id = item.id;
+
+        // Referência/Resposta
+        if (item.referenciaId) {
+            const refItem = this.messageHistory.find((m) => m.id == item.referenciaId);
+            if (refItem) {
+                const replyDiv = document.createElement("div");
+                replyDiv.innerHTML = this.getReplyMessageTemplate(refItem);
+                const replyElement = replyDiv.firstElementChild;
+                replyElement.addEventListener("click", () => {
+                    this.scrollToAndHighlightMessage(refItem.id);
+                });
+                bubbleDiv.appendChild(replyElement);
+            }
+        }
+
+        // Anexos
+        if (item.attachment) {
+            const attachmentEl = this.renderAttachment(item.attachment);
+            if (attachmentEl) bubbleDiv.appendChild(attachmentEl);
+        }
+
+        // Conteúdo de texto
+        if (item.content) {
+            const textDiv = document.createElement("div");
+            textDiv.className = "mt-2 content";
+            textDiv.textContent = item.content;
+            bubbleDiv.appendChild(textDiv);
+        }
+
+        contentDiv.appendChild(bubbleDiv);
+
+        // Timestamp
+        const timeDiv = document.createElement("div");
+        timeDiv.className = "message-time";
+        
+        // Adicionar status se a mensagem for enviada por mim
+        if (item.senderIsMe && item.status) {
+            const statusSpan = document.createElement("span");
+            statusSpan.className = "message-status-icon";
+            statusSpan.innerHTML = this.getMessageStatusTemplate(item.status);
+            statusSpan.style.marginLeft = "8px";
+            
+            timeDiv.textContent = item.timestamp || this.getCurrentTimestamp();
+            timeDiv.appendChild(statusSpan);
+        } else {
+            timeDiv.textContent = item.timestamp || this.getCurrentTimestamp();
+        }
+        
+        contentDiv.appendChild(timeDiv);
+
+        messageDiv.appendChild(contentDiv);
+
+        return messageDiv;
+    }
+
+    renderAttachment(attachment) {
+        if (!attachment.url) return null;
+
+        const attachmentDiv = document.createElement("div");
+        attachmentDiv.className = "mt-2";
+
+        attachment.type = attachment.type.toUpperCase();
+        switch (attachment.type) {
+            case "IMAGE":
+            case "IMAGEM":
+                attachmentDiv.innerHTML = this.getImageAttachmentTemplate(attachment);
+                break;
+            case "VIDEO":
+                attachmentDiv.innerHTML = this.getVideoAttachmentTemplate(attachment);
+                break;
+            case "AUDIO":
+                attachmentDiv.innerHTML = this.getAudioAttachmentTemplate(attachment);
+                this.setupAudioControls(
+                    attachmentDiv.querySelector("audio"),
+                    attachmentDiv
+                );
+                break;
+            case "DOCUMENT":
+            case "FILE":
+            case "DOCUMENTO":
+                attachmentDiv.innerHTML = this.getFileAttachmentTemplate(attachment);
+                break;
+            default:
+                attachmentDiv.innerHTML = this.getFileAttachmentTemplate(attachment);
+        }
+
+        return attachmentDiv;
+    }
+
+    renderSession(item) {
+        const sessionDiv = document.createElement("div");
+        let template;
+        switch (item.subtype) {
+            case "session-start":
+                template = this.getSessionStartTemplate(item);
+                break;
+            case "session-end":
+                template = this.getSessionEndTemplate(item);
+                break;
+            default:
+                template = this.getPrivateSessionTemplate(item);
+        }
+        sessionDiv.innerHTML = template;
+        this.messagesContainer.appendChild(sessionDiv);
+    }
+
+    renderSessionAtBeginning(item) {
+        const sessionDiv = document.createElement("div");
+        let template;
+        switch (item.subtype) {
+            case "session-start":
+                template = this.getSessionStartTemplate(item);
+                break;
+            case "session-end":
+                template = this.getSessionEndTemplate(item);
+                break;
+            default:
+                template = this.getPrivateSessionTemplate(item);
+        }
+        sessionDiv.innerHTML = template;
+        
+        // Inserir no início do container de forma mais segura
+        try {
+            const firstChild = this.messagesContainer.firstChild;
+            if (firstChild) {
+                this.messagesContainer.insertBefore(sessionDiv, firstChild);
+            } else {
+                this.messagesContainer.appendChild(sessionDiv);
+            }
+        } catch (e) {
+            console.warn("Erro ao inserir sessão no início, adicionando no final:", e);
+            this.messagesContainer.appendChild(sessionDiv);
+        }
+    }
+
+    updateMessageStatus(id, status) {
+        console.log("Atualizando status da mensagem:", id, "para:", status);
+        
+        // Buscar a mensagem pelo data-id no elemento principal
+        const messageDiv = this.messagesContainer.querySelector(
+            `.message[data-id="${id}"]`
+        );
+        if (!messageDiv) {
+            console.warn("Mensagem não encontrada para atualizar status:", id);
+            return;
+        }
+        
+        // Buscar o ícone de status no message-time
+        const statusIcon = messageDiv.querySelector(".message-status-icon");
+        if (!statusIcon) {
+            console.warn("Ícone de status não encontrado para mensagem:", id);
+            return;
+        }
+        
+        // Atualizar também no histórico de mensagens
+        const messageInHistory = this.messageHistory.find(m => m.id == id);
+        if (messageInHistory) {
+            messageInHistory.status = status;
+        }
+        
+        // Atualizar o ícone
+        statusIcon.innerHTML = this.getMessageStatusTemplate(status);
+        console.log("Status atualizado com sucesso para:", status);
+    }
+
+    // ===== AUDIO CONTROLS =====
+    formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${this.padNumber(mins)}:${this.padNumber(secs)}`;
+    }
+
+    setupAudioControls(audioElement, controlsContainer) {
+        if (!audioElement) return;
+
+        const playButton = controlsContainer.querySelector(".audio-play-button");
+        const progressBar = controlsContainer.querySelector(".audio-progress-bar");
+        const progressKnob = controlsContainer.querySelector(".audio-progress-knob");
+        const speedButton = controlsContainer.querySelector(".audio-speed-button");
+
+        let isDragging = false;
+
+        // Botão play/pause
+        playButton?.addEventListener("click", () => {
+            this.toggleAudioPlayback(audioElement);
+        });
+
+        // Botão de velocidade
+        speedButton?.addEventListener("click", () => {
+            this.cycleAudioSpeed(audioElement, speedButton);
+        });
+
+        // Mostrar knob no hover
+        progressBar?.addEventListener("mouseenter", () => {
+            if (progressKnob) {
+                progressKnob.style.opacity = "1";
+            }
+        });
+
+        progressBar?.addEventListener("mouseleave", () => {
+            if (progressKnob && !isDragging) {
+                progressKnob.style.opacity = "0";
+            }
+        });
+
+        // Barra de progresso clicável
+        progressBar?.addEventListener("click", (e) => {
+            // Não executar se estiver arrastando
+            if (isDragging) return;
+            
+            // Proteção contra duração inválida
+            if (
+                !audioElement.duration ||
+                !isFinite(audioElement.duration) ||
+                isNaN(audioElement.duration)
+            ) {
+                console.warn("Áudio ainda não carregou completamente");
+                return;
+            }
+
+            const rect = progressBar.getBoundingClientRect();
+            const percent = Math.max(
+                0,
+                Math.min(1, (e.clientX - rect.left) / rect.width)
+            );
+            const newTime = percent * audioElement.duration;
+
+            // Proteção adicional antes de definir currentTime
+            if (isFinite(newTime) && !isNaN(newTime)) {
+                audioElement.currentTime = newTime;
+            }
+        });
+
+        // Função comum de drag para knob e barra
+        const startDragging = (e) => {
+            e.preventDefault();
+            isDragging = true;
+            if (progressKnob) progressKnob.style.opacity = "1";
+            
+            const mouseMoveHandler = (moveEvent) => {
+                if (!isDragging) return;
+                
+                const rect = progressBar.getBoundingClientRect();
+                const percent = Math.max(
+                    0,
+                    Math.min(1, (moveEvent.clientX - rect.left) / rect.width)
+                );
+                
+                // Atualizar visualmente o knob e a barra
+                const progressFill = controlsContainer.querySelector(".audio-progress-fill");
+                const timeDisplay = controlsContainer.querySelector(".audio-time-display");
+                
+                if (progressFill) {
+                    progressFill.style.width = `${percent * 100}%`;
+                }
+                
+                if (progressKnob) {
+                    progressKnob.style.left = `${percent * 100}%`;
+                }
+                
+                // Atualizar o display do tempo durante o drag
+                if (timeDisplay && audioElement.duration && isFinite(audioElement.duration)) {
+                    const previewTime = percent * audioElement.duration;
+                    timeDisplay.textContent = `${this.formatTime(previewTime)} / ${this.formatTime(audioElement.duration)}`;
+                }
+            };
+            
+            const mouseUpHandler = (upEvent) => {
+                if (!isDragging) return;
+                
+                isDragging = false;
+                
+                // Calcular a nova posição final
+                const rect = progressBar.getBoundingClientRect();
+                const percent = Math.max(
+                    0,
+                    Math.min(1, (upEvent.clientX - rect.left) / rect.width)
+                );
+                
+                // Agora sim alterar o áudio
+                if (audioElement.duration && isFinite(audioElement.duration)) {
+                    const newTime = percent * audioElement.duration;
+                    if (isFinite(newTime) && !isNaN(newTime)) {
+                        audioElement.currentTime = newTime;
+                    }
+                }
+                
+                // Remover event listeners
+                document.removeEventListener("mousemove", mouseMoveHandler);
+                document.removeEventListener("mouseup", mouseUpHandler);
+                
+                // Esconder knob se não estiver no hover da barra
+                if (!progressBar.matches(':hover') && progressKnob) {
+                    progressKnob.style.opacity = "0";
+                }
+            };
+            
+            document.addEventListener("mousemove", mouseMoveHandler);
+            document.addEventListener("mouseup", mouseUpHandler);
+        };
+
+        // Drag do knob
+        progressKnob?.addEventListener("mousedown", startDragging);
+
+        // Drag da barra também (quando não clicar diretamente no knob)
+        progressBar?.addEventListener("mousedown", (e) => {
+            // Só permitir se não clicou diretamente no knob
+            if (e.target === progressKnob) return;
+            startDragging(e);
+        });
+
+        // Event listeners do áudio
+        audioElement.addEventListener("loadedmetadata", () => {
+            this.updateAudioTimeDisplay(audioElement);
+        });
+
+        audioElement.addEventListener("timeupdate", () => {
+            if (!isDragging) {
+                this.updateAudioTimeDisplay(audioElement);
+            }
+        });
+
+        audioElement.addEventListener("play", () => {
+            this.updateAudioUI(audioElement, true);
+            // Removido handler do GenExus para evitar erro de preventDefault
+            console.log("Áudio iniciado:", audioElement.src);
+        });
+
+        audioElement.addEventListener("pause", () => {
+            this.updateAudioUI(audioElement, false);
+        });
+
+        audioElement.addEventListener("ended", () => {
+            this.updateAudioUI(audioElement, false);
+            if (this.currentAudioElement === audioElement) {
+                this.currentAudioElement = null;
+                this.currentAudioContainer = null;
+                this.hideFloatingControl();
+            }
+        });
+    }
+
+    cycleAudioSpeed(audioElement, speedButton) {
+        if (!audioElement || !speedButton) return;
+
+        const speeds = [1, 1.5, 2];
+        const currentSpeed = audioElement.playbackRate || 1;
+        const currentIndex = speeds.indexOf(currentSpeed);
+        const nextIndex = (currentIndex + 1) % speeds.length;
+        const newSpeed = speeds[nextIndex];
+
+        audioElement.playbackRate = newSpeed;
+        speedButton.textContent = `${newSpeed}x`;
+
+        if (this.currentAudioElement === audioElement && this.floatingSpeedBtn) {
+            this.floatingSpeedBtn.textContent = `${newSpeed}x`;
+        }
+    }
+
+    updateAudioTimeDisplay(audioElement) {
+        if (!audioElement) return;
+
+        const container = audioElement.closest(".audio-message");
+        if (!container) return;
+
+        const timeDisplay = container.querySelector(".audio-time-display");
+        const progressFill = container.querySelector(".audio-progress-fill");
+        const progressKnob = container.querySelector(".audio-progress-knob");
+
+        if (!timeDisplay || !progressFill || !progressKnob) return;
+
+        let currentTime = audioElement.currentTime || 0;
+        let duration = audioElement.duration;
+
+        if (!isFinite(duration) || isNaN(duration) || duration <= 0) {
+            timeDisplay.textContent = "Carregando...";
+            progressFill.style.width = "0%";
+            progressKnob.style.left = "0%";
+            return;
+        }
+
+        const percentage = duration > 0 ? (currentTime / duration) * 100 : 0;
+        timeDisplay.textContent = `${this.formatTime(currentTime)} / ${this.formatTime(duration)}`;
+        progressFill.style.width = `${Math.max(0, Math.min(100, percentage))}%`;
+        progressKnob.style.left = `${Math.max(0, Math.min(100, percentage))}%`;
+    }
+
+    pauseAllOtherAudios(currentAudio) {
+        document.querySelectorAll("audio").forEach((audio) => {
+            if (audio !== currentAudio && !audio.paused) {
+                audio.pause();
+                this.updateAudioUI(audio, false);
+            }
+        });
+
+        if (this.currentAudioElement && this.currentAudioElement !== currentAudio) {
+            this.currentAudioElement = null;
+            this.currentAudioContainer = null;
+            this.hideFloatingControl();
+        }
+    }
+
+    toggleAudioPlayback(audioElement) {
+        if (audioElement.paused) {
+            this.pauseAllOtherAudios(audioElement);
+            audioElement.play();
+            this.currentAudioElement = audioElement;
+            this.currentAudioContainer = audioElement.closest(".message");
+            this.updateAudioUI(audioElement, true);
+            this.checkFloatingControlVisibility();
+        } else {
+            audioElement.pause();
+            this.updateAudioUI(audioElement, false);
+            this.syncFloatingControlWithAudio();
+        }
+    }
+
+    updateAudioUI(audioElement, isPlaying) {
+        const container = audioElement.closest(".audio-message");
+        if (!container) return;
+
+        const playButton = container.querySelector(".audio-play-button");
+        if (!playButton) return;
+
+        if (isPlaying) {
+            playButton.innerHTML = '<i class="fas fa-pause"></i>';
+            container.classList.add("playing");
+        } else {
+            playButton.innerHTML = '<i class="fas fa-play" style="margin-left: 2px;"></i>';
+            container.classList.remove("playing");
+        }
+    }
+
+    // ===== FLOATING CONTROL =====
+    checkFloatingControlVisibility() {
+        if (!this.currentAudioElement || !this.currentAudioContainer) {
+            this.hideFloatingControl();
+            return;
+        }
+
+        const containerRect = this.messagesContainer.getBoundingClientRect();
+        const audioRect = this.currentAudioContainer.getBoundingClientRect();
+
+        const isVisible = (
+            audioRect.top >= containerRect.top &&
+            audioRect.bottom <= containerRect.bottom
+        );
+
+        if (!isVisible) {
+            this.showFloatingControl();
+            this.syncFloatingControlWithAudio();
+        } else {
+            this.hideFloatingControl();
+        }
+    }
+
+    showFloatingControl() {
+        if (this.floatingControl) {
+            this.floatingControl.classList.add("show");
+        }
+    }
+
+    hideFloatingControl() {
+        if (this.floatingControl) {
+            this.floatingControl.classList.remove("show");
+        }
+    }
+
+    closeFloatingControl() {
+        if (this.currentAudioElement && !this.currentAudioElement.paused) {
+            this.currentAudioElement.pause();
+            this.updateAudioUI(this.currentAudioElement, false);
+        }
+        
+        this.currentAudioElement = null;
+        this.currentAudioContainer = null;
+        this.hideFloatingControl();
+    }
+
+    scrollToCurrentAudio() {
+        if (this.currentAudioContainer) {
+            this.currentAudioContainer.scrollIntoView({
+                behavior: "smooth",
+                block: "center"
+            });
+            setTimeout(() => {
+                this.hideFloatingControl();
+            }, 1000);
+        }
+    }
+
+    syncFloatingControlWithAudio() {
+        if (!this.currentAudioElement) return;
+
+        // Sincronizar botão play/pause
+        const isPlaying = !this.currentAudioElement.paused;
+        this.floatingPlayBtn.innerHTML = isPlaying 
+            ? '<i class="fas fa-pause"></i>' 
+            : '<i class="fas fa-play" style="margin-left: 2px;"></i>';
+
+        // Sincronizar velocidade
+        const currentSpeed = this.currentAudioElement.playbackRate || 1;
+        if (this.floatingSpeedBtn) {
+            this.floatingSpeedBtn.textContent = `${currentSpeed}x`;
+        }
+
+        // Sincronizar progresso e tempo
+        const updateFloatingProgress = () => {
+            if (!this.currentAudioElement) return;
+            
+            // Não atualizar se estiver arrastando (igual ao áudio principal)
+            if (this.floatingIsDragging) return;
+            
+            let currentTime = this.currentAudioElement.currentTime || 0;
+            let duration = this.currentAudioElement.duration;
+
+            // Proteção contra mídia inválida
+            if (!isFinite(duration) || isNaN(duration) || duration <= 0) {
+                this.floatingTimeDisplay.textContent = "Carregando...";
+                this.floatingProgressFill.style.width = "0%";
+                if (this.floatingProgressKnob) {
+                    this.floatingProgressKnob.style.left = "0%";
+                }
+                return;
+            }
+
+            const percent = (currentTime / duration) * 100;
+            this.floatingProgressFill.style.width = `${Math.max(0, Math.min(100, percent))}%`;
+            
+            // Atualizar posição do knob
+            if (this.floatingProgressKnob) {
+                this.floatingProgressKnob.style.left = `${Math.max(0, Math.min(100, percent))}%`;
+            }
+            
+            const current = this.formatTime(currentTime);
+            const total = this.formatTime(duration);
+            this.floatingTimeDisplay.textContent = `${current} / ${total}`;
+        };
+
+        // Atualizar agora
+        updateFloatingProgress();
+        
+        // Remover listener anterior se existir
+        if (this.updateFloatingProgress) {
+            this.currentAudioElement.removeEventListener("timeupdate", this.updateFloatingProgress);
+        }
+        
+        // Adicionar novo listener
+        this.updateFloatingProgress = updateFloatingProgress;
+        this.currentAudioElement.addEventListener("timeupdate", this.updateFloatingProgress);
+    }
+
+    // ===== TEMPLATES =====
+    getImageAttachmentTemplate(attachment) {
+        return `
+            <div class="image-attachment" onclick="openImageViewer('${attachment.url}')">
+                <img src="${attachment.url}" alt="${attachment.name || "Imagem"}" loading="lazy">
+            </div>`;
+    }
+
+    getVideoAttachmentTemplate(attachment) {
+        return `
+            <div class="video-attachment">
+                <video controls>
+                    <source src="${attachment.url}" type="video/mp4">
+                    Seu navegador não suporta vídeo.
+                </video>
+            </div>`;
+    }
+
+    getAudioAttachmentTemplate(attachment) {
+        return `
+            <div class="audio-message">
+                <button type="button" class="audio-play-button">
+                    <i class="fas fa-play" style="margin-left: 2px;"></i>
+                </button>
+                <div style="flex: 1; display: flex; flex-direction: column; gap: 6px;">
+                    <div class="audio-progress-bar">
+                        <div class="audio-progress-fill" style="width: 0%;"></div>
+                        <div class="audio-progress-knob" style="left: 0%;"></div>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div class="audio-time-display">00:00 / 00:00</div>
+                        <button type="button" class="audio-speed-button">1x</button>
+                    </div>
+                </div>
+                <audio src="${attachment.url}" preload="metadata" style="display: none;"></audio>
+            </div>`;
+    }
+
+    getFileAttachmentTemplate(attachment) {
+        const fileExtension = attachment.name?.split(".").pop()?.toUpperCase() || "FILE";
+        return `
+            <div class="file-attachment" onclick="window.open('${attachment.url}', '_blank')">
+                <div style="margin-right: 12px;">
+                    <i class="fas fa-file text-2xl" style="color: #6c757d;"></i>
+                </div>
+                <div style="flex: 1;">
+                    <div style="font-weight: 500; font-size: 14px;">${attachment.name || "Arquivo"}</div>
+                    <div style="font-size: 12px; color: #6c757d;">${attachment.size || fileExtension}</div>
+                </div>
+                <div style="color: #6c757d;">
+                    <i class="fas fa-download"></i>
+                </div>
+            </div>`;
+    }
+
+    getSessionStartTemplate(item) {
+        return `
+            <div class="session-divider">
+                <div class="session-info" style="background-color: #dbeafe; color: #1d4ed8;">
+                    📱 Sessão iniciada - ${item.timestamp}
+                </div>
+            </div>`;
+    }
+
+    getSessionEndTemplate(item) {
+        return `
+            <div class="session-divider">
+                <div class="session-info" style="background-color: #dcfce7; color: #16a34a;">
+                    ✅ Sessão finalizada - ${item.timestamp}
+                </div>
+            </div>`;
+    }
+
+    getPrivateSessionTemplate(item) {
+        return `
+            <div class="session-divider">
+                <div class="session-info" style="background-color: #fee2e2; color: #dc2626;">
+                    🔒 ${item.content}
+                </div>
+            </div>`;
+    }
+
+    getReplyMessageTemplate(refItem) {
+        let senderLabel = refItem.senderIsMe ? "Você" : "Cliente";
+        let preview = "";
+        if (refItem.attachment?.url) {
+            switch (refItem.attachment.type.toUpperCase()) {
+                case "IMAGE":
+                case "IMAGEM":
+                    preview = "🖼️ Imagem";
+                    break;
+                case "VIDEO":
+                    preview = "🎥 Vídeo";
+                    break;
+                case "AUDIO":
+                    preview = "🎵 Áudio";
+                    break;
+                default:
+                    preview = "📎 Arquivo";
+            }
+            // Se também tem texto, mostra embaixo
+            if (refItem.content) {
+                preview += ` - ${refItem.content.substring(0, 50)}`;
+            }
+        } else if (refItem.content) {
+            preview = refItem.content.substring(0, 100);
+        }
+
+        return `
+        <div class="reply-message" data-for="${refItem.id}">
+            <div style="font-size: 11px; font-weight: 600; color: #4f46e5;">${senderLabel}</div>
+            <div style="font-size: 12px; color: #6b7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${preview}</div>
+        </div>`;
+    }
+
+    getMessageStatusTemplate(status) {
+        switch (status) {
+            case "pendente":
+                return `<i class="fas fa-clock" style="color: #f59e0b;" title="Pendente"></i>`;
+            case "falhou":
+                return `<i class="fas fa-ban" style="color: #ef4444;" title="Erro ao enviar"></i>`;
+            case "enviado":
+                return `<i class="fas fa-check-double" style="color: #10b981;" title="Enviado"></i>`;
+            case "apagado":
+                return `<i class="fas fa-trash-alt" style="color: #9ca3af;" title="Apagado"></i>`;
+            case "cancelado":
+                return `<i class="fas fa-times-circle" style="color: #6b7280;" title="Cancelado"></i>`;
+            case "entregue":
+                return `<i class="fas fa-check" style="color: #3b82f6;" title="Entregue"></i>`;
+            case "lido":
+                return `<i class="fas fa-eye" style="color: #1d4ed8;" title="Lido"></i>`;
+            case "outro":
+                return `<i class="fas fa-ellipsis-h" style="color: #6b7280;" title="Outro"></i>`;
+            default:
+                return `<i class="fas fa-question" style="color: #6b7280;" title="Não identificado"></i>`;
+        }
+    }
+}
+
+// ===== IMAGE VIEWER =====
+class ImageViewer {
+    constructor(options = {}) {
+        this.overlay = document.getElementById("image-viewer-overlay");
+        this.img = document.getElementById("image-viewer-img");
+
+        // Verificar se os elementos DOM existem
+        if (!this.overlay || !this.img) {
+            console.error("Elementos do ImageViewer não encontrados no DOM:", {
+                overlay: !!this.overlay,
+                img: !!this.img
+            });
+            return;
+        }
+
+        this.scale = 1;
+        this.rotation = 0;
+        this.flipXState = 1;
+        this.flipYState = 1;
+        this.pos = { x: 0, y: 0 };
+        this.isDragging = false;
+        this.dragStart = { x: 0, y: 0 };
+        this._updatePending = false; // Flag para otimização de performance
+
+        this._boundMouseMove = this._onMouseMove.bind(this);
+        this._boundMouseUp = this._onMouseUp.bind(this);
+        this._boundKeyDown = this._onKeyDown.bind(this);
+        this._bindEvents();
+        this._bindControlButtons();
+    }
+
+    _updateTransform() {
+        // Usar requestAnimationFrame para otimizar performance
+        if (this._updatePending) return;
+        
+        this._updatePending = true;
+        requestAnimationFrame(() => {
+            if (this.img) {
+                this.img.style.transform = `
+                    translate(-50%, -50%)
+                    translate(${this.pos.x}px, ${this.pos.y}px)
+                    rotate(${this.rotation}deg)
+                    scale(${this.flipXState * this.scale}, ${this.flipYState * this.scale})
+                `;
+            }
+            this._updatePending = false;
+        });
+    }
+
+    zoom(factor, mouseX, mouseY) {
+        const oldScale = this.scale;
+        const newScale = Math.max(0.1, Math.min(10, oldScale * factor));
+        
+        if (newScale === oldScale) return;
+        
+        if (typeof mouseX === "number" && typeof mouseY === "number") {
+            const viewportCenterX = window.innerWidth / 2;
+            const viewportCenterY = window.innerHeight / 2;
+            
+            const mouseOffsetX = mouseX - viewportCenterX;
+            const mouseOffsetY = mouseY - viewportCenterY;
+            
+            const scaleDiff = newScale - oldScale;
+            this.pos.x -= (mouseOffsetX * scaleDiff) / oldScale;
+            this.pos.y -= (mouseOffsetY * scaleDiff) / oldScale;
+        }
+        
+        this.scale = newScale;
+        this._updateTransform();
+    }
+
+    rotate(deg) {
+        this.rotation = (this.rotation + deg) % 360;
+        this._updateTransform();
+    }
+
+    flipX() {
+        this.flipXState *= -1;
+        this._updateTransform();
+    }
+
+    flipY() {
+        this.flipYState *= -1;
+        this._updateTransform();
+    }
+
+    reset() {
+        this.scale = 1;
+        this.rotation = 0;
+        this.flipXState = 1;
+        this.flipYState = 1;
+        this.pos = { x: 0, y: 0 };
+        this._updateTransform();
+    }
+
+    mostrar(src) {
+        // Verificar se os elementos existem antes de usar
+        if (!this.overlay || !this.img) {
+            console.error("ImageViewer: Elementos DOM não encontrados, não é possível mostrar imagem");
+            // Fallback: abrir imagem em nova aba
+            window.open(src, '_blank');
+            return;
+        }
+
+        this.img.src = src || this.defaultSrc;
+        this.overlay.style.display = "flex";
+        this.reset();
+        document.addEventListener("mousemove", this._boundMouseMove, true);
+        document.addEventListener("mouseup", this._boundMouseUp, true);
+        document.addEventListener("keydown", this._boundKeyDown, true);
+        
+        // NÃO chamar event handler do GenExus - apenas mostrar a imagem
+        console.log("Imagem aberta no viewer:", src);
+    }
+
+    fechar() {
+        this.overlay.style.display = "none";
+        document.removeEventListener("mousemove", this._boundMouseMove, true);
+        document.removeEventListener("mouseup", this._boundMouseUp, true);
+        document.removeEventListener("keydown", this._boundKeyDown, true);
+        this.isDragging = false;
+        this.img.style.cursor = "grab";
+    }
+
+    _bindEvents() {
+        this.img.addEventListener("mousedown", (e) => {
+            if (e.button !== 0) return;
+            this.isDragging = true;
+            this.dragStart = {
+                x: e.clientX - this.pos.x,
+                y: e.clientY - this.pos.y,
+            };
+            this.img.style.cursor = "grabbing";
+            e.preventDefault();
+        });
+
+        // Otimizar evento de wheel com throttling
+        let wheelTimeout;
+        this.img.addEventListener(
+            "wheel",
+            (e) => {
+                if (this.overlay.style.display !== "flex") return;
+                e.preventDefault();
+                
+                // Throttling para reduzir lag no zoom
+                if (wheelTimeout) return;
+                
+                wheelTimeout = setTimeout(() => {
+                    wheelTimeout = null;
+                }, 16); // ~60fps
+                
+                const factor = e.deltaY < 0 ? 1.1 : 0.9;
+                this.zoom(factor, e.clientX, e.clientY);
+            },
+            { passive: false }
+        );
+    }
+
+    _bindControlButtons() {
+        document.getElementById("viewer-zoom-in").addEventListener("click", () => {
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+            this.zoom(1.2, centerX, centerY);
+        });
+        
+        document.getElementById("viewer-zoom-out").addEventListener("click", () => {
+            const centerX = window.innerWidth / 2;
+            const centerY = window.innerHeight / 2;
+            this.zoom(0.83, centerX, centerY);
+        });
+        
+        document.getElementById("viewer-rotate").addEventListener("click", () => this.rotate(90));
+        document.getElementById("viewer-flip-x").addEventListener("click", () => this.flipX());
+        document.getElementById("viewer-flip-y").addEventListener("click", () => this.flipY());
+        document.getElementById("viewer-reset").addEventListener("click", () => this.reset());
+        document.getElementById("viewer-close").addEventListener("click", () => this.fechar());
+
+        // Fechar ao clicar no overlay
+        this.overlay.addEventListener("click", (e) => {
+            if (e.target === this.overlay || e.target === document.getElementById("image-viewer-container")) {
+                this.fechar();
+            }
+        });
+
+        const container = document.getElementById("image-viewer-container");
+        if (container) {
+            container.addEventListener("click", (e) => {
+                if (e.target === container) {
+                    this.fechar();
+                }
+            });
+        }
+    }
+
+    _onMouseMove(e) {
+        if (!this.isDragging || this.overlay.style.display !== "flex") return;
+        this.pos.x = e.clientX - this.dragStart.x;
+        this.pos.y = e.clientY - this.dragStart.y;
+        this._updateTransform();
+    }
+
+    _onMouseUp(e) {
+        if (this.isDragging) {
+            this.isDragging = false;
+            this.img.style.cursor = "grab";
+        }
+    }
+
+    _onKeyDown(e) {
+        if (this.overlay.style.display !== "flex") return;
+        if (e.key === "Escape") {
+            this.fechar();
+            e.stopPropagation();
+        }
+    }
+}
+
+// Instancia global para integração com Genexus/UserControl
+this.messagesGridApp = new MessagesGridApp();
+
+// Função global para abrir imagem (usada nos templates HTML)
+window.openImageViewer = function(url) {
+    console.log("Tentando abrir imagem:", url);
+    
+    // Abordagem SUPER simples - apenas tentar as 3 formas mais diretas
+    
+    // 1. Tentar this.messagesGridApp (contexto do UserControl)
+    if (typeof self !== 'undefined' && self.messagesGridApp && self.messagesGridApp.imageViewer) {
+        console.log("✅ Usando self.messagesGridApp");
+        self.messagesGridApp.imageViewer.mostrar(url);
+        return;
+    }
+    
+    // 2. Tentar window.messagesGridApp (instância global)  
+    if (window.messagesGridApp && window.messagesGridApp.imageViewer) {
+        console.log("✅ Usando window.messagesGridApp");
+        window.messagesGridApp.imageViewer.mostrar(url);
+        return;
+    }
+    
+    // 3. Fallback: nova aba (sempre funciona)
+    console.log("❌ ImageViewer não encontrado, abrindo em nova aba");
+    window.open(url, '_blank');
+};
+
+    </script>
+    
+    <script name="adicionarMensagem" parameters="mensagem">
+        try {
+            // Usa o roteador para direcionar para o método correto
+            this.messagesGridApp.routeMessage(mensagem);
+        } catch (e) {
+            console.error("Erro em adicionarMensagem:", e);
+        }
+    </script>
+    
+    <script name="adicionarMensagens" parameters="mensagens">
+        try {
+            // Flag para indicar que está carregando múltiplas mensagens
+            this.messagesGridApp.isBatchLoading = true;
+            
+            mensagens.forEach((mensagem) => {
+                this.messagesGridApp.routeMessage(mensagem);
+            });
+            
+            // Finalizar carregamento em lote e forçar scroll
+            setTimeout(() => {
+                this.messagesGridApp.isBatchLoading = false;
+                this.messagesGridApp.performInitialScroll(true); // true = forçar scroll
+            }, 50);
+        } catch (e) {
+            console.error("Erro em adicionarMensagens:", e);
+        }
+    </script>
+    
+    <script name="adicionarMensagensInicio" parameters="mensagens">
+        try {
+            // Adiciona mensagens no início para carregar histórico anterior
+            this.messagesGridApp.insertOldMessages(mensagens);
+        } catch (e) {
+            console.error("Erro em adicionarMensagensInicio:", e);
+        }
+    </script>
+    
+    <script name="limparMensagens">
+        try {
+            this.messagesGridApp.clearMessages();
+        } catch (e) {
+            console.error("Erro em limparMensagens:", e);
+        }
+    </script>
+    
+    <script name="alterarStatusMensagem" parameters="id,status">
+        try {
+            this.messagesGridApp.updateMessageStatus(id, status);
+        } catch (e) {
+            console.error("Erro em alterarStatusMensagem:", e);
+        }
+    </script>
+    
+    <script name="scrollParaFim">
+        try {
+            // Se estiver em batch loading, aguardar finalização
+            if (this.messagesGridApp.isBatchLoading) {
+                setTimeout(() => {
+                    this.messagesGridApp.scrollToBottom();
+                }, 100);
+            } else {
+                this.messagesGridApp.scrollToBottom();
+            }
+        } catch (e) {
+            console.error("Erro em scrollParaFim:", e);
+        }
+    </script>
+    
+    <script name="garantirScrollInicial">
+        try {
+            // Força scroll inicial e marca como feito
+            this.messagesGridApp.performInitialScroll();
+        } catch (e) {
+            console.error("Erro em garantirScrollInicial:", e);
+        }
+    </script>
+    
+    <script name="destacarMensagem" parameters="id">
+        try {
+            this.messagesGridApp.scrollToAndHighlightMessage(id);
+        } catch (e) {
+            console.error("Erro em destacarMensagem:", e);
+        }
+    </script>
+    
+    <script name="finalizarCarregamento">
+        try {
+            // Resetar flag de carregamento quando não houver mais mensagens para carregar
+            this.messagesGridApp.isLoadingMoreMessages = false;
+        } catch (e) {
+            console.error("Erro em finalizarCarregamento:", e);
+        }
+    </script>
+
+</Definition>

@@ -1,0 +1,40 @@
+{
+  "event": "messages.upsert",
+  "instance": "Jaboti554497618592",
+  "data": {
+    "key": {
+      "remoteJid": "120363338108532415@g.us",
+      "fromMe": false,
+      "id": "09666285C208D52214826DF3CE1244A1",
+      "participant": "556596831210@s.whatsapp.net"
+    },
+    "pushName": "waly Robert",
+    "status": "DELIVERY_ACK",
+    "message": {
+      "senderKeyDistributionMessage": {
+        "groupId": "120363338108532415@g.us",
+        "axolotlSenderKeyDistributionMessage": "Mwiipe/rBBACGiAMksOugc07p6snrC3bsCA7mGCggSAsoQmAcMYXjRCw8yIhBaoUZhuFDMo3BlpEwerPTxT7Jm4rbbTCDrCGj/zF3FkH"
+      },
+      "messageContextInfo": {
+        "messageSecret": "QD7k8SFvO8+z0YMuAuVZWpRUIJUwLqy4FAAO75Rdc1s="
+      },
+      "conversation": "Coisa de nerd velho"
+    },
+    "contextInfo": {
+      "stanzaId": "579405294DE9440465804773B7855CA8",
+      "participant": "554388422214@s.whatsapp.net",
+      "quotedMessage": {
+        "conversation": "Que?"
+      }
+    },
+    "messageType": "conversation",
+    "messageTimestamp": 1748269546,
+    "instanceId": "46b40e16-21ae-458f-abfe-ae1dc69b4b7b",
+    "source": "android"
+  },
+  "destination": "http://192.168.100.46/JaspiZAP.NetEnvironment/WhatsAPI.EvolutionAPIAuth.aspx/messages-upsert",
+  "date_time": "2025-05-26T11:25:47.368Z",
+  "sender": "554497618592@s.whatsapp.net",
+  "server_url": "http://localhost:2525",
+  "apikey": "C2D5FC1F-0D37-4180-ADC8-C25ACA0208E6"
+}

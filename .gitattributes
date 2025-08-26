@@ -1,0 +1,96 @@
+# Configurações de atributos do Git para o monorepo
+
+# Arquivos de texto que devem ser normalizados
+*.ts text eol=lf
+*.tsx text eol=lf
+*.js text eol=lf
+*.jsx text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+*.yml text eol=lf
+*.yaml text eol=lf
+*.html text eol=lf
+*.css text eol=lf
+*.scss text eol=lf
+*.sql text eol=lf
+*.env text eol=lf
+*.env.example text eol=lf
+*.gitignore text eol=lf
+*.gitattributes text eol=lf
+
+# Arquivos binários
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.svg binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.pdf binary
+*.zip binary
+*.tar.gz binary
+*.7z binary
+*.mp3 binary
+*.mp4 binary
+*.wav binary
+*.avi binary
+*.mov binary
+
+# Arquivos de build (não versionados)
+dist/ -text
+build/ -text
+node_modules/ -text
+*.log -text
+*.tmp -text
+*.temp -text
+
+# Arquivos de configuração específicos do sistema
+*.DS_Store -text
+Thumbs.db -text
+desktop.ini -text
+
+# Arquivos de lock (não normalizar)
+package-lock.json -text
+yarn.lock -text
+pnpm-lock.yaml -text
+
+# Arquivos de ambiente (não normalizar)
+.env -text
+.env.local -text
+.env.production -text
+.env.staging -text
+
+# Arquivos de backup
+*.bak -text
+*.backup -text
+*.old -text
+*.orig -text
+
+# Arquivos de IDE
+.vscode/ -text
+.idea/ -text
+*.swp -text
+*.swo -text
+*~ -text
+
+# Arquivos de teste
+coverage/ -text
+.nyc_output/ -text
+test-results/ -text
+playwright-report/ -text
+
+# Arquivos de upload
+uploads/ -text
+*/uploads/ -text
+
+# Arquivos de banco de dados
+*.db -text
+*.sqlite -text
+*.sqlite3 -text
+
+# Arquivos de Docker
+.dockerignore -text
+docker-compose.override.yml -text

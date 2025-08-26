@@ -1,0 +1,23 @@
+{
+  "event": "messages.edited",
+  "instance": "Jaboti554497618592",
+  "data": {
+    "key": {
+      "remoteJid": "554497618592@s.whatsapp.net",
+      "fromMe": true,
+      "id": "3EB04C96957799D23DBE0E"
+    },
+    "type": "MESSAGE_EDIT",
+    "editedMessage": {
+      "videoMessage": {
+        "caption": "(alterado) video com caption"
+      }
+    },
+    "timestampMs": "1748352497069"
+  },
+  "destination": "http://192.168.100.46/JaspiZAP.NetEnvironment/WhatsAPI.EvolutionAPIAuth.aspx/messages-edited",
+  "date_time": "2025-05-27T10:28:25.056Z",
+  "sender": "554497618592@s.whatsapp.net",
+  "server_url": "http://localhost:2525",
+  "apikey": "C2D5FC1F-0D37-4180-ADC8-C25ACA0208E6"
+}

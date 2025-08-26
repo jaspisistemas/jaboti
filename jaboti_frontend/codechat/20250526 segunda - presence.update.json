@@ -1,0 +1,17 @@
+{
+  "event": "presence.update",
+  "instance": "Jaboti554497618592",
+  "data": {
+    "id": "555484038002-1445097236@g.us",
+    "presences": {
+      "554799036969@s.whatsapp.net": {
+        "lastKnownPresence": "composing"
+      }
+    }
+  },
+  "destination": "http://192.168.100.46/JaspiZAP.NetEnvironment/WhatsAPI.EvolutionAPIAuth.aspx/presence-update",
+  "date_time": "2025-05-26T11:12:29.857Z",
+  "sender": "554497618592@s.whatsapp.net",
+  "server_url": "http://localhost:2525",
+  "apikey": "C2D5FC1F-0D37-4180-ADC8-C25ACA0208E6"
+}

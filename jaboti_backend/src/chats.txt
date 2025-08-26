@@ -1,0 +1,87 @@
+vamos para Chats/Atendimento (fundamental para produto)
+Modelo de ChatMessage + websocket gateway
+Evento: cliente entra → atribuição automática a atendente disponível
+Métricas: tempo de espera, SLA.
+
+hoje, no legado eu tenho uma tabela Mensagem, Atendimento e AtendimentoMensagem. Não necessariamente uma mensagem está atrelada a um atendimento. Eu utilizo GUID como identificador mas aqui eu pretendo utilizar um modelo mais relacional. Vários campos são apenas referências, por exemplo AtendimAtendNom, AtendimAtendFon, tudo vem à partir do AtendimAtendGUID. Eu pretendo normalizar isso. MsgOld serve para gravar a versão anterior da mensagem. Se a mensagem é uma resposta à outra (quer dizer que tem o MsgRespGUID), o MsgRespIsMe é true, não sei se é a melhor abordagem, mas serve de contexto para ti pensar.
+
+- Atendimento
+AtendimGUID
+EmpTelGUID
+EmpTelNum
+EmpTelNom
+AtendimDtaHorIni
+AtendimDtaHorFin
+AtendimTipCan
+AtendimTipCanVer
+AtendimStatus
+AtendimIsBot
+AtendimBotNumErr
+AtendimPro
+AtendimIsPriv
+AtendimDtaHorUltMsg
+BotGUID
+AtendimDepGUID
+AtendimDepNom
+AtendimCliGUID
+AtendimCliNom
+AtendimCliFon
+AtendimCliFotoGUID
+AtendimCliFotoFisVir
+AtendimCliExtEmp
+AtendimCliExtModSis
+AtendimCliTip
+AtendimAtendGUID
+AtendimAtendNom
+AtendimAtendFon
+AtendimAtendFotoGUID
+AtendimAtendFotoFisVir
+AtendimAtendTip
+
+- Mensagem
+EmpCod
+MsgGUID
+MsgCod
+MsgCod2
+MsgConteudo
+MsgTxt
+MsgOrd
+MsgAppNome
+MsgDtaHorEnv
+MsgDtaHorLid
+MsgIsLid
+MsgSts
+MsgIsBot
+MsgTip
+MsgIsEdt
+MsgOldTxt
+MsgOldCod
+MsgRea
+JanAtendimGUID
+JanAtendimId
+MsgRemGUID
+MsgRemFon
+MsgRemFotoURL
+MsgRemNom
+MsgRemTip
+MsgDestGUID
+MsgDestFon
+MsgDestFotoURL
+MsgDestNom
+MsgDestTip
+MsgRespGUID
+MsgRespTxt
+MsgRespTip
+MsgRespArqGUID
+MsgRespArqNom
+MsgRespArqExt
+MsgRespArqNomCom
+MsgRespArqURLFisVir
+MsgRespIsMe
+MsgArqGUID
+MsgArqNom
+MsgArqNomCom
+MsgArqExt
+MsgArqTam
+MsgArqTip
+MsgArqURLFisVir

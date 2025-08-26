@@ -1,0 +1,60 @@
+{
+  "event": "messages.upsert",
+  "instance": "Jaboti554497618592",
+  "data": {
+    "key": {
+      "remoteJid": "554498457962@s.whatsapp.net",
+      "fromMe": false,
+      "id": "3EB098F39EE17A3F74D606"
+    },
+    "pushName": "Jaspi Sistemas",
+    "status": "DELIVERY_ACK",
+    "message": {
+      "stickerMessage": {
+        "url": "https://web.whatsapp.net",
+        "fileSha256": "BLWGdz2LP4yUrF8eCUuhSN5dS4qx+/QL8eX4cZMbKok=",
+        "fileEncSha256": "/bIQ8obV0id1uDLF+g51vZp2c7dW+3Vkd0hh3IjYBKs=",
+        "mediaKey": "Vj8B8b8Eb+dYsMPszONS6t6W0mUiySMME+mzT/ZcAi0=",
+        "mimetype": "image/webp",
+        "directPath": "/v/t62.15575-24/30692031_1006732128242286_7459345285005772752_n.enc?ccb=11-4&oh=01_Q5Aa1gEPKXWHHtFXd-GFYcyxXdYfdCEJWgvxbmPdElNgY8BLJg&oe=685D2900&_nc_sid=5e03e0",
+        "fileLength": "77876",
+        "mediaKeyTimestamp": "1747846492",
+        "isAnimated": false,
+        "contextInfo": {
+          "ephemeralSettingTimestamp": "1701368381",
+          "disappearingMode": {
+            "initiator": "CHANGED_IN_CHAT"
+          }
+        },
+        "stickerSentTs": "0"
+      },
+      "messageContextInfo": {
+        "deviceListMetadata": {
+          "senderKeyHash": "KzrSIPV3/V3Fcg==",
+          "senderTimestamp": "1747910510",
+          "senderAccountType": "E2EE",
+          "receiverAccountType": "E2EE",
+          "recipientKeyHash": "wj61vAyNbdekEg==",
+          "recipientTimestamp": "1748006939"
+        },
+        "deviceListMetadataVersion": 2,
+        "messageSecret": "dWe9QO+rb059tY3oVw2GAW1A2F8wJUoPCkcsgZZ2424="
+      }
+    },
+    "contextInfo": {
+      "ephemeralSettingTimestamp": "1701368381",
+      "disappearingMode": {
+        "initiator": "CHANGED_IN_CHAT"
+      }
+    },
+    "messageType": "stickerMessage",
+    "messageTimestamp": 1748353824,
+    "instanceId": "46b40e16-21ae-458f-abfe-ae1dc69b4b7b",
+    "source": "web"
+  },
+  "destination": "http://192.168.100.46/JaspiZAP.NetEnvironment/WhatsAPI.EvolutionAPIAuth.aspx/messages-upsert",
+  "date_time": "2025-05-27T10:50:26.092Z",
+  "sender": "554497618592@s.whatsapp.net",
+  "server_url": "http://localhost:2525",
+  "apikey": "C2D5FC1F-0D37-4180-ADC8-C25ACA0208E6"
+}

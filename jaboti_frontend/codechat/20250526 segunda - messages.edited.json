@@ -1,0 +1,27 @@
+{
+  "event": "messages.edited",
+  "instance": "Jaboti554497618592",
+  "data": {
+    "key": {
+      "remoteJid": "554498457962@s.whatsapp.net",
+      "fromMe": true,
+      "id": "3EB0A62F2AF63F5A62850C"
+    },
+    "type": "MESSAGE_EDIT",
+    "editedMessage": {
+      "documentWithCaptionMessage": {
+        "message": {
+          "documentMessage": {
+            "caption": "( editado aa editado ) conteudo das ferias"
+          }
+        }
+      }
+    },
+    "timestampMs": "1748293073814"
+  },
+  "destination": "http://192.168.100.46/JaspiZAP.NetEnvironment/WhatsAPI.EvolutionAPIAuth.aspx/messages-edited",
+  "date_time": "2025-05-26T17:57:55.230Z",
+  "sender": "554497618592@s.whatsapp.net",
+  "server_url": "http://localhost:2525",
+  "apikey": "C2D5FC1F-0D37-4180-ADC8-C25ACA0208E6"
+}

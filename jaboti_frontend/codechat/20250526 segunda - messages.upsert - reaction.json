@@ -1,0 +1,33 @@
+{
+  "event": "messages.upsert",
+  "instance": "Jaboti554497618592",
+  "data": {
+    "key": {
+      "remoteJid": "554498457962@s.whatsapp.net",
+      "fromMe": true,
+      "id": "3EB02D0954AC1B70D63730"
+    },
+    "pushName": "Italo Rodrigues",
+    "status": "SERVER_ACK",
+    "message": {
+      "reactionMessage": {
+        "key": {
+          "remoteJid": "554498457962@s.whatsapp.net",
+          "fromMe": true,
+          "id": "3EB0349FCACD201500772B"
+        },
+        "text": "😮",
+        "senderTimestampMs": "1748278844000"
+      }
+    },
+    "messageType": "reactionMessage",
+    "messageTimestamp": 1748278844,
+    "instanceId": "46b40e16-21ae-458f-abfe-ae1dc69b4b7b",
+    "source": "web"
+  },
+  "destination": "http://192.168.100.46/JaspiZAP.NetEnvironment/WhatsAPI.EvolutionAPIAuth.aspx/messages-upsert",
+  "date_time": "2025-05-26T14:00:45.123Z",
+  "sender": "554497618592@s.whatsapp.net",
+  "server_url": "http://localhost:2525",
+  "apikey": "C2D5FC1F-0D37-4180-ADC8-C25ACA0208E6"
+}

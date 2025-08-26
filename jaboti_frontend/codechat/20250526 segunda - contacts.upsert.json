@@ -1,0 +1,15 @@
+{
+  "event": "contacts.upsert",
+  "instance": "Jaboti554497618592",
+  "data": {
+    "remoteJid": "120363410581851352@g.us",
+    "pushName": "",
+    "profilePicUrl": "https://pps.whatsapp.net/v/t61.24694-24/491867469_1189515228949635_9062980276473940520_n.jpg?ccb=11-4&oh=01_Q5Aa1gFwQvdPRqrnjByLgy4b1PupnRGynCaQwqWwAd_VGZsNJQ&oe=683DD71B&_nc_sid=5e03e0&_nc_cat=102",
+    "instanceId": "46b40e16-21ae-458f-abfe-ae1dc69b4b7b"
+  },
+  "destination": "http://192.168.100.46/JaspiZAP.NetEnvironment/WhatsAPI.EvolutionAPIAuth.aspx/contacts-upsert",
+  "date_time": "2025-05-23T17:15:42.488Z",
+  "sender": "554497618592@s.whatsapp.net",
+  "server_url": "http://localhost:2525",
+  "apikey": "C2D5FC1F-0D37-4180-ADC8-C25ACA0208E6"
+}

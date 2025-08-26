@@ -1,0 +1,17 @@
+{
+  "event": "group-participants.update",
+  "instance": "Jaboti554497618592",
+  "data": {
+    "id": "120363338108532415@g.us",
+    "author": "5521979001533@s.whatsapp.net",
+    "participants": [
+      "5521979472817@s.whatsapp.net"
+    ],
+    "action": "add"
+  },
+  "destination": "http://192.168.100.46/JaspiZAP.NetEnvironment/WhatsAPI.EvolutionAPIAuth.aspx/group-participants-update",
+  "date_time": "2025-05-26T10:59:02.889Z",
+  "sender": "554497618592@s.whatsapp.net",
+  "server_url": "http://localhost:2525",
+  "apikey": "C2D5FC1F-0D37-4180-ADC8-C25ACA0208E6"
+}

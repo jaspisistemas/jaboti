@@ -1,0 +1,52 @@
+{
+  "event": "messages.upsert",
+  "instance": "Jaboti554497618592",
+  "data": {
+    "key": {
+      "remoteJid": "554498457962@s.whatsapp.net",
+      "fromMe": true,
+      "id": "3EB00184C8830F06B010"
+    },
+    "pushName": "Italo Rodrigues",
+    "status": "SERVER_ACK",
+    "message": {
+      "contactsArrayMessage": {
+        "contacts": [
+          {
+            "displayName": "Adriano Gráfica Tibola",
+            "vcard": "BEGIN:VCARD\nVERSION:3.0\nN:Gráfica Tibola;Adriano;;;\nFN:Adriano Gráfica Tibola\nTEL;type=CELL;waid=554599792525:+55 45 9979-2525\nX-WA-BIZ-NAME:Adriano Gráfica Tibola\nX-WA-BIZ-AUTOMATED-TYPE:unknown\nEND:VCARD"
+          },
+          {
+            "displayName": "Adenilson",
+            "vcard": "BEGIN:VCARD\nVERSION:3.0\nN:;Adenilson;;;\nFN:Adenilson\nTEL;type=CELL;waid=554491296541:+55 44 9129-6541\nEND:VCARD"
+          }
+        ],
+        "contextInfo": {
+          "ephemeralSettingTimestamp": "1701368381",
+          "disappearingMode": {
+            "initiator": "CHANGED_IN_CHAT",
+            "trigger": "CHAT_SETTING",
+            "initiatedByMe": false
+          }
+        }
+      }
+    },
+    "contextInfo": {
+      "ephemeralSettingTimestamp": "1701368381",
+      "disappearingMode": {
+        "initiator": "CHANGED_IN_CHAT",
+        "trigger": "CHAT_SETTING",
+        "initiatedByMe": false
+      }
+    },
+    "messageType": "contactsArrayMessage",
+    "messageTimestamp": 1748279239,
+    "instanceId": "46b40e16-21ae-458f-abfe-ae1dc69b4b7b",
+    "source": "unknown"
+  },
+  "destination": "http://192.168.100.46/JaspiZAP.NetEnvironment/WhatsAPI.EvolutionAPIAuth.aspx/messages-upsert",
+  "date_time": "2025-05-26T14:07:20.019Z",
+  "sender": "554497618592@s.whatsapp.net",
+  "server_url": "http://localhost:2525",
+  "apikey": "C2D5FC1F-0D37-4180-ADC8-C25ACA0208E6"
+}

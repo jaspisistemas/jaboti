@@ -1,0 +1,33 @@
+{
+  "event": "messages.upsert",
+  "instance": "Jaboti554497618592",
+  "data": {
+    "key": {
+      "remoteJid": "554498457962@s.whatsapp.net",
+      "fromMe": true,
+      "id": "3EB05D8B93EF77B73EF573"
+    },
+    "pushName": "Italo Rodrigues",
+    "status": "SERVER_ACK",
+    "message": {
+      "conversation": "batatinha quando nasce se esparrama pelo chão"
+    },
+    "contextInfo": {
+      "ephemeralSettingTimestamp": "1701368381",
+      "disappearingMode": {
+        "initiator": "CHANGED_IN_CHAT",
+        "trigger": "CHAT_SETTING",
+        "initiatedByMe": false
+      }
+    },
+    "messageType": "conversation",
+    "messageTimestamp": 1748291680,
+    "instanceId": "46b40e16-21ae-458f-abfe-ae1dc69b4b7b",
+    "source": "web"
+  },
+  "destination": "http://192.168.100.46/JaspiZAP.NetEnvironment/WhatsAPI.EvolutionAPIAuth.aspx/messages-upsert",
+  "date_time": "2025-05-26T17:34:41.050Z",
+  "sender": "554497618592@s.whatsapp.net",
+  "server_url": "http://localhost:2525",
+  "apikey": "C2D5FC1F-0D37-4180-ADC8-C25ACA0208E6"
+}
