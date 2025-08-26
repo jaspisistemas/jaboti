@@ -1,305 +1,199 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { Box, IconButton, Tooltip, Typography } from '@mui/material';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import PauseIcon from '@mui/icons-material/Pause';
-import CloseIcon from '@mui/icons-material/Close';
-import VolumeUpIcon from '@mui/icons-material/VolumeUp';
-import { useAdvancedAudioControl } from '../hooks/useAdvancedAudioControl';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface FloatingAudioControlProps {
-  audioControl: ReturnType<typeof useAdvancedAudioControl>;
+  isVisible: boolean;
+  audioElement: HTMLAudioElement | null;
+  onClose: () => void;
+  onLocate: () => void;
 }
 
-export const FloatingAudioControl: React.FC<FloatingAudioControlProps> = ({ audioControl }) => {
-  const {
-    isPlaying,
-    currentTime,
-    duration,
-    playbackRate,
-    showFloatingControl,
-    toggleAudioPlayback,
-    cycleAudioSpeed,
-    locateCurrentAudio,
-    closeFloatingControl,
-    seekAudio,
-    formatTime
-  } = audioControl;
-
-  const progressBarRef = useRef<HTMLDivElement>(null);
-  const progressFillRef = useRef<HTMLDivElement>(null);
-  const progressKnobRef = useRef<HTMLDivElement>(null);
+export const FloatingAudioControl: React.FC<FloatingAudioControlProps> = ({
+  isVisible,
+  audioElement,
+  onClose,
+  onLocate,
+}) => {
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [playbackRate, setPlaybackRate] = useState(1);
   const [isDragging, setIsDragging] = useState(false);
+  const progressRef = useRef<HTMLDivElement>(null);
 
-  // Função para alternar reprodução
-  const handleTogglePlayback = () => {
-    if (audioControl.currentAudio && audioControl.currentContainer) {
-      toggleAudioPlayback(audioControl.currentAudio, audioControl.currentContainer);
+  useEffect(() => {
+    if (!audioElement) return;
+
+    const handlePlay = () => setIsPlaying(true);
+    const handlePause = () => setIsPlaying(false);
+    const handleEnded = () => setIsPlaying(false);
+    const handleTimeUpdate = () => {
+      if (!isDragging) {
+        setCurrentTime(audioElement.currentTime);
+      }
+    };
+    const handleLoadedMetadata = () => {
+      setDuration(audioElement.duration);
+      setPlaybackRate(audioElement.playbackRate);
+    };
+
+    audioElement.addEventListener('play', handlePlay);
+    audioElement.addEventListener('pause', handlePause);
+    audioElement.addEventListener('ended', handleEnded);
+    audioElement.addEventListener('timeupdate', handleTimeUpdate);
+    audioElement.addEventListener('loadedmetadata', handleLoadedMetadata);
+
+    // Sincronizar estado inicial
+    setIsPlaying(!audioElement.paused);
+    setCurrentTime(audioElement.currentTime);
+    setPlaybackRate(audioElement.playbackRate);
+
+    return () => {
+      audioElement.removeEventListener('play', handlePlay);
+      audioElement.removeEventListener('pause', handlePause);
+      audioElement.removeEventListener('ended', handleEnded);
+      audioElement.removeEventListener('timeupdate', handleTimeUpdate);
+      audioElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
+    };
+  }, [audioElement, isDragging]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  };
+
+  const togglePlayback = () => {
+    if (!audioElement) return;
+
+    if (isPlaying) {
+      audioElement.pause();
+    } else {
+      audioElement.play();
     }
   };
 
-  // Função para alternar velocidade
-  const handleSpeedChange = () => {
-    cycleAudioSpeed();
+  const cycleSpeed = () => {
+    if (!audioElement) return;
+
+    const speeds = [1, 1.5, 2];
+    const currentIndex = speeds.indexOf(playbackRate);
+    const nextIndex = (currentIndex + 1) % speeds.length;
+    const newSpeed = speeds[nextIndex];
+
+    audioElement.playbackRate = newSpeed;
+    setPlaybackRate(newSpeed);
   };
 
-  // Função para localizar áudio
-  const handleLocateAudio = () => {
-    locateCurrentAudio();
-  };
-
-  // Função para fechar controle
-  const handleClose = () => {
-    closeFloatingControl();
-  };
-
-  // Função para clicar na barra de progresso
   const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (isDragging || !progressBarRef.current || !duration) return;
+    if (isDragging || !audioElement || !duration) return;
 
-    const rect = progressBarRef.current.getBoundingClientRect();
+    const rect = e.currentTarget.getBoundingClientRect();
     const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
     const newTime = percent * duration;
-    
-    seekAudio(newTime);
+
+    if (isFinite(newTime) && !isNaN(newTime)) {
+      audioElement.currentTime = newTime;
+      setCurrentTime(newTime);
+    }
   };
 
-  // Função para iniciar drag do knob
-  const handleKnobMouseDown = (e: React.MouseEvent) => {
+  const handleProgressDrag = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(true);
-    
+
     const handleMouseMove = (moveEvent: MouseEvent) => {
-      if (!isDragging || !progressBarRef.current || !duration) return;
-      
-      const rect = progressBarRef.current.getBoundingClientRect();
+      if (!isDragging || !audioElement || !duration) return;
+
+      const rect = e.currentTarget.getBoundingClientRect();
       const percent = Math.max(0, Math.min(1, (moveEvent.clientX - rect.left) / rect.width));
-      
-      // Atualizar visualmente
-      if (progressFillRef.current) {
-        progressFillRef.current.style.width = `${percent * 100}%`;
-      }
-      if (progressKnobRef.current) {
-        progressKnobRef.current.style.left = `${percent * 100}%`;
-      }
+      const previewTime = percent * duration;
+      setCurrentTime(previewTime);
     };
-    
+
     const handleMouseUp = (upEvent: MouseEvent) => {
-      if (!isDragging || !progressBarRef.current || !duration) return;
-      
       setIsDragging(false);
-      
-      const rect = progressBarRef.current.getBoundingClientRect();
-      const percent = Math.max(0, Math.min(1, (upEvent.clientX - rect.left) / rect.width));
-      const newTime = percent * duration;
-      
-      seekAudio(newTime);
-      
+
+      if (audioElement && duration) {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const percent = Math.max(0, Math.min(1, (upEvent.clientX - rect.left) / rect.width));
+        const newTime = percent * duration;
+
+        if (isFinite(newTime) && !isNaN(newTime)) {
+          audioElement.currentTime = newTime;
+          setCurrentTime(newTime);
+        }
+      }
+
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-    
+
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
   };
 
-  // Função para iniciar drag da barra
-  const handleProgressMouseDown = (e: React.MouseEvent) => {
-    // Só permitir se não clicou diretamente no knob
-    if (e.target === progressKnobRef.current) return;
-    handleKnobMouseDown(e);
-  };
+  const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
 
-  // Atualizar posição do progresso
-  useEffect(() => {
-    if (!progressFillRef.current || !progressKnobRef.current || !duration) return;
-    
-    const percentage = duration > 0 ? (currentTime / duration) * 100 : 0;
-    const clampedPercentage = Math.max(0, Math.min(100, percentage));
-    
-    progressFillRef.current.style.width = `${clampedPercentage}%`;
-    progressKnobRef.current.style.left = `${clampedPercentage}%`;
-  }, [currentTime, duration]);
-
-  if (!showFloatingControl) return null;
+  if (!isVisible || !audioElement) return null;
 
   return (
-    <Box
-      sx={{
-        position: 'fixed',
-        bottom: 20,
-        left: '50%',
-        transform: 'translateX(-50%)',
-        bgcolor: '#ffffff',
-        border: '1px solid',
-        borderColor: 'divider',
-        borderRadius: 3,
-        boxShadow: 6,
-        px: 2,
-        py: 1.5,
-        display: 'flex',
-        flexDirection: 'column',
-        gap: 1.5,
-        zIndex: 1000,
-        minWidth: 320,
-        maxWidth: 400,
-        width: '90vw',
-        opacity: showFloatingControl ? 1 : 0,
-        visibility: showFloatingControl ? 'visible' : 'hidden',
-        transition: 'all 0.3s ease'
-      }}
-    >
+    <div className="floating-audio-control">
       {/* Barra de progresso */}
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, flex: 1, width: '100%' }}>
-        <Box
-          ref={progressBarRef}
-          onClick={handleProgressClick}
-          onMouseDown={handleProgressMouseDown}
-          className="audio-progress-bar"
-          sx={{
-            position: 'relative',
-            width: '100%',
-            height: 6,
-            bgcolor: 'divider',
-            borderRadius: 3,
-            cursor: 'pointer',
-            '&:hover .audio-progress-knob': {
-              opacity: 1
-            }
-          }}
+      <div
+        ref={progressRef}
+        className="audio-progress-bar"
+        onClick={handleProgressClick}
+        onMouseDown={handleProgressDrag}
+      >
+        <div className="audio-progress-fill" style={{ width: `${progressPercentage}%` }} />
+        <div className="audio-progress-knob" style={{ left: `${progressPercentage}%` }} />
+      </div>
+
+      {/* Controles principais */}
+      <div className="floating-controls-container">
+        {/* Botão de localizar */}
+        <button
+          type="button"
+          className="audio-locate-button"
+          onClick={onLocate}
+          title="Ir para o áudio"
         >
-          <Box
-            ref={progressFillRef}
-            className="audio-progress-fill"
-            sx={{
-              height: '100%',
-              bgcolor: 'primary.main',
-              borderRadius: 3,
-              width: '0%',
-              transition: 'width 0.1s linear'
-            }}
-          />
-          <Box
-            ref={progressKnobRef}
-            className="audio-progress-knob"
-            onMouseDown={handleKnobMouseDown}
-            sx={{
-              position: 'absolute',
-              width: 14,
-              height: 14,
-              bgcolor: 'primary.main',
-              border: '2px solid',
-              borderColor: 'white',
-              borderRadius: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
-              cursor: 'grab',
-              left: '0%',
-              boxShadow: 2,
-              opacity: 0,
-              transition: 'opacity 0.2s ease',
-              '&:active': {
-                cursor: 'grabbing'
-              }
-            }}
-          />
-        </Box>
-        
-        {/* Display de tempo */}
-        <Typography
-          variant="caption"
-          color="text.secondary"
-          className="audio-time-display"
-          sx={{
-            textAlign: 'center',
-            fontFamily: 'monospace',
-            fontSize: '11px'
-          }}
-        >
+          <i className="fas fa-volume-up"></i>
+        </button>
+
+        {/* Botão play/pause */}
+        <button type="button" className="audio-play-button" onClick={togglePlayback}>
+          <i
+            className={`fas fa-${isPlaying ? 'pause' : 'play'}`}
+            style={{ marginLeft: isPlaying ? 0 : 2 }}
+          ></i>
+        </button>
+
+        {/* Tempo */}
+        <div className="audio-time-display">
           {formatTime(currentTime)} / {formatTime(duration)}
-        </Typography>
-      </Box>
+        </div>
 
-      {/* Controles */}
-      <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 1.5 }}>
-        <Tooltip title="Localizar áudio">
-          <IconButton
-            size="small"
-            onClick={handleLocateAudio}
-            className="audio-locate-button"
-            sx={{
-              width: 36,
-              height: 36,
-              bgcolor: 'grey.100',
-              border: '1px solid',
-              borderColor: 'divider',
-              '&:hover': { bgcolor: 'grey.200' }
-            }}
-          >
-            <VolumeUpIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-
-        <IconButton
-          size="small"
-          onClick={handleTogglePlayback}
-          className="audio-play-button"
-          sx={{
-            width: 36,
-            height: 36,
-            bgcolor: 'grey.100',
-            border: '1px solid',
-            borderColor: 'divider',
-            '&:hover': { bgcolor: 'grey.200' }
-          }}
+        {/* Botão de velocidade */}
+        <button
+          type="button"
+          className="audio-speed-button"
+          onClick={cycleSpeed}
+          title="Velocidade de reprodução"
         >
-          {isPlaying ? <PauseIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" />}
-        </IconButton>
+          {playbackRate}x
+        </button>
 
-        <Tooltip title="Velocidade de reprodução">
-          <Box
-            onClick={handleSpeedChange}
-            className="audio-speed-button"
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              width: 'auto',
-              minWidth: 40,
-              height: 36,
-              px: 1,
-              bgcolor: 'grey.100',
-              border: '1px solid',
-              borderColor: 'divider',
-              borderRadius: 2,
-              cursor: 'pointer',
-              fontSize: '11px',
-              fontWeight: 600,
-              '&:hover': { bgcolor: 'grey.200' }
-            }}
-          >
-            {playbackRate}x
-          </Box>
-        </Tooltip>
-
-        <Tooltip title="Fechar controle">
-          <IconButton
-            size="small"
-            onClick={handleClose}
-            className="audio-close-button"
-            sx={{
-              width: 36,
-              height: 36,
-              bgcolor: 'grey.100',
-              border: '1px solid',
-              borderColor: 'divider',
-              color: 'error.main',
-              '&:hover': { bgcolor: 'error.50' }
-            }}
-          >
-            <CloseIcon fontSize="small" />
-          </IconButton>
-        </Tooltip>
-      </Box>
-    </Box>
+        {/* Botão fechar */}
+        <button
+          type="button"
+          className="audio-close-button"
+          onClick={onClose}
+          title="Fechar controle"
+        >
+          <i className="fas fa-times"></i>
+        </button>
+      </div>
+    </div>
   );
 };

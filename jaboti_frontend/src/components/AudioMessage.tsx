@@ -1,325 +1,391 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { Box, IconButton, Tooltip, Typography } from '@mui/material';
-import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import PauseIcon from '@mui/icons-material/Pause';
-import { useAdvancedAudioControl } from '../hooks/useAdvancedAudioControl';
+import React, { useEffect, useRef, useState } from 'react';
 
 interface AudioMessageProps {
-  audioControl: ReturnType<typeof useAdvancedAudioControl>;
   url: string;
   duration?: number;
   messageId: string;
 }
 
-export const AudioMessage: React.FC<AudioMessageProps> = ({ 
-  audioControl, 
-  url
-}) => {
-  console.log('🎵 AudioMessage renderizando com URL:', url);
-  
-  const {
-    currentAudio,
-    isPlaying,
-    currentTime,
-    duration: currentDuration,
-    playbackRate,
-    toggleAudioPlayback,
-    seekAudio,
-    formatTime
-  } = audioControl;
-
+export const AudioMessage: React.FC<AudioMessageProps> = ({ url, messageId }) => {
   const audioRef = useRef<HTMLAudioElement>(null);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const progressBarRef = useRef<HTMLDivElement>(null);
-  const progressFillRef = useRef<HTMLDivElement>(null);
-  const progressKnobRef = useRef<HTMLDivElement>(null);
+  const retryCountRef = useRef(0); // Usar useRef para manter contador persistente
+  const [isPlaying, setIsPlaying] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const [playbackRate, setPlaybackRate] = useState(1);
   const [isDragging, setIsDragging] = useState(false);
-  const [localCurrentTime, setLocalCurrentTime] = useState(0);
-  const [localDuration, setLocalDuration] = useState(0);
+  const [isHovering, setIsHovering] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const [previewTime, setPreviewTime] = useState(0); // Tempo de preview durante drag
+  const maxRetries = 2; // Máximo de tentativas de recarregar
 
-  // Verificar se este é o áudio ativo
-  const isActiveAudio = currentAudio === audioRef.current;
-  const isCurrentlyPlaying = isActiveAudio && isPlaying;
+  // Listener para pausar outros áudios quando este começar a tocar
+  useEffect(() => {
+    const audioElement = audioRef.current;
+    if (!audioElement) {
+      console.error('❌ AudioMessage: audioElement é null no useEffect');
+      return;
+    }
 
-  // Função para alternar reprodução
-  const handleTogglePlayback = () => {
-    if (!audioRef.current || !containerRef.current) return;
-    toggleAudioPlayback(audioRef.current, containerRef.current);
+    // Não configurar listeners se já há erro
+    if (hasError) {
+      return;
+    }
+
+    const handlePlay = () => {
+      // Pausar todos os outros áudios ANTES de registrar este
+      if (window.audioManager) {
+        // IMPORTANTE: pausar outros áudios ANTES de registrar este
+        // Passar o áudio atual para não pausá-lo
+        window.audioManager.stopAllAudios(audioElement);
+        // Registrar este áudio como o atual APÓS pausar os outros
+        window.audioManager.registerAudio(audioElement);
+      } else {
+        console.warn('⚠️ window.audioManager não está disponível');
+      }
+
+      // Notificar o componente pai sobre o áudio ativo
+      if (window.setCurrentAudioElement) {
+        console.log('📢 Notificando componente pai sobre áudio ativo');
+        window.setCurrentAudioElement(audioElement, messageId);
+      } else {
+        console.warn('⚠️ window.setCurrentAudioElement não está disponível');
+      }
+
+      setIsPlaying(true);
+    };
+
+    const handlePause = () => {
+      // Notificar o componente pai sobre o áudio pausado
+      if (window.setCurrentAudioElement) {
+        window.setCurrentAudioElement(null, null);
+      }
+      setIsPlaying(false);
+    };
+
+    const handleEnded = () => {
+      // Notificar o componente pai sobre o áudio finalizado
+      if (window.setCurrentAudioElement) {
+        window.setCurrentAudioElement(null, null);
+      }
+      setIsPlaying(false);
+      setCurrentTime(0);
+    };
+
+    const handleTimeUpdate = () => {
+      // Só atualizar o tempo se não estiver arrastando
+      // Durante o drag, o tempo é controlado pelo preview
+      if (!isDragging) {
+        setCurrentTime(audioElement.currentTime);
+      }
+    };
+
+    const handleLoadedMetadata = () => {
+      setDuration(audioElement.duration);
+    };
+
+    const handleError = (e: Event) => {
+      console.error('❌ AudioMessage: Erro no áudio:', e);
+      console.error('❌ Detalhes do erro:', audioElement.error);
+
+      // Tratar erro de formato com limite de tentativas
+      if (audioElement.error && audioElement.error.code === 4) {
+        if (retryCountRef.current < maxRetries) {
+          retryCountRef.current += 1;
+          console.warn(
+            `⚠️ Formato de áudio não suportado. Tentativa ${retryCountRef.current}/${maxRetries}. Tentando recarregar...`
+          );
+          // Tentar recarregar o áudio
+          audioElement.load();
+        } else {
+          console.error('❌ Máximo de tentativas atingido. Áudio não pode ser carregado.');
+          setHasError(true);
+          // IMPORTANTE: Não tentar mais recarregar este áudio
+          return;
+        }
+      } else {
+        // Para outros tipos de erro, marcar como erro imediatamente
+        setHasError(true);
+      }
+    };
+
+    const handleCanPlay = () => {
+      // Áudio pode ser reproduzido
+    };
+
+    audioElement.addEventListener('play', handlePlay);
+    audioElement.addEventListener('pause', handlePause);
+    audioElement.addEventListener('ended', handleEnded);
+    audioElement.addEventListener('timeupdate', handleTimeUpdate);
+    audioElement.addEventListener('loadedmetadata', handleLoadedMetadata);
+    audioElement.addEventListener('error', handleError);
+    audioElement.addEventListener('canplay', handleCanPlay);
+
+    return () => {
+      audioElement.removeEventListener('play', handlePlay);
+      audioElement.removeEventListener('pause', handlePause);
+      audioElement.removeEventListener('ended', handleEnded);
+      audioElement.removeEventListener('timeupdate', handleTimeUpdate);
+      audioElement.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      audioElement.removeEventListener('error', handleError);
+      audioElement.removeEventListener('canplay', handleCanPlay);
+    };
+  }, [isDragging, messageId, hasError]);
+
+  // Resetar previewTime quando drag terminar
+  useEffect(() => {
+    if (!isDragging && previewTime > 0) {
+      // Aguardar um frame para garantir que o currentTime foi atualizado
+      requestAnimationFrame(() => {
+        setPreviewTime(0);
+      });
+    }
+  }, [isDragging, previewTime]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
-  // Função para alternar velocidade
-  const handleSpeedChange = () => {
-    if (!audioRef.current) return;
-    
+  const togglePlayback = async () => {
+    const audio = audioRef.current;
+    if (!audio) {
+      console.error('❌ AudioMessage: audioRef.current é null');
+      return;
+    }
+
+    // Não tentar reproduzir se houve erro
+    if (hasError) {
+      console.warn('⚠️ Não é possível reproduzir áudio com erro');
+      return;
+    }
+
+    // Não tentar reproduzir se já atingiu o limite de tentativas
+    if (retryCountRef.current >= maxRetries) {
+      console.warn('⚠️ Máximo de tentativas atingido para este áudio');
+      setHasError(true);
+      return;
+    }
+
+    try {
+      if (isPlaying) {
+        audio.pause();
+      } else {
+        // Verificar se o áudio está carregado
+        if (audio.readyState < 2) {
+          // HAVE_CURRENT_DATA
+          await audio.load();
+        }
+
+        const playPromise = audio.play();
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              // Áudio iniciado com sucesso
+              setHasError(false); // Resetar erro se conseguir reproduzir
+              retryCountRef.current = 0; // Resetar contador de tentativas
+            })
+            .catch((error) => {
+              console.error('❌ Erro ao iniciar áudio:', error);
+              // Não tentar recarregar automaticamente aqui
+              setHasError(true);
+            });
+        }
+      }
+    } catch (error) {
+      console.error('❌ Erro em togglePlayback:', error);
+      setHasError(true);
+    }
+  };
+
+  const cycleSpeed = () => {
     const speeds = [1, 1.5, 2];
     const currentIndex = speeds.indexOf(playbackRate);
     const nextIndex = (currentIndex + 1) % speeds.length;
     const newSpeed = speeds[nextIndex];
-    
-    audioRef.current.playbackRate = newSpeed;
-  };
 
-  // Função para clicar na barra de progresso
-  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (isDragging || !progressBarRef.current || !localDuration) return;
-
-    const rect = progressBarRef.current.getBoundingClientRect();
-    const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
-    const newTime = percent * localDuration;
-    
     if (audioRef.current) {
-      audioRef.current.currentTime = newTime;
-      setLocalCurrentTime(newTime);
-    }
-    
-    // Se for o áudio ativo, sincronizar com o controle principal
-    if (isActiveAudio) {
-      seekAudio(newTime);
+      audioRef.current.playbackRate = newSpeed;
+      setPlaybackRate(newSpeed);
     }
   };
 
-  // Função para iniciar drag do knob
-  const handleKnobMouseDown = (e: React.MouseEvent) => {
+  const handleProgressClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isDragging || !audioRef.current || !duration) return;
+
+    try {
+      const rect = e.currentTarget.getBoundingClientRect();
+      const percent = Math.max(0, Math.min(1, (e.clientX - rect.left) / rect.width));
+      const newTime = percent * duration;
+
+      if (isFinite(newTime) && !isNaN(newTime)) {
+        audioRef.current.currentTime = newTime;
+        setCurrentTime(newTime);
+        // Resetar preview time para sincronizar
+        setPreviewTime(0);
+      }
+    } catch (error) {
+      console.error('❌ Erro ao clicar na barra de progresso:', error);
+    }
+  };
+
+  const handleProgressHover = () => {
+    setIsHovering(true);
+  };
+
+  const handleProgressLeave = () => {
+    if (!isDragging) {
+      setIsHovering(false);
+    }
+  };
+
+  const handleProgressDrag = (e: React.MouseEvent<HTMLDivElement>) => {
     e.preventDefault();
     setIsDragging(true);
-    
+    setIsHovering(true); // Manter knob visível durante o drag
+
+    // Armazenar referência para o elemento da barra de progresso
+    const progressBarElement = e.currentTarget;
+
     const handleMouseMove = (moveEvent: MouseEvent) => {
-      if (!isDragging || !progressBarRef.current || !localDuration) return;
-      
-      const rect = progressBarRef.current.getBoundingClientRect();
-      const percent = Math.max(0, Math.min(1, (moveEvent.clientX - rect.left) / rect.width));
-      
-      // Atualizar visualmente
-      if (progressFillRef.current) {
-        progressFillRef.current.style.width = `${percent * 100}%`;
-      }
-      if (progressKnobRef.current) {
-        progressKnobRef.current.style.left = `${percent * 100}%`;
+      if (!isDragging || !audioRef.current || !duration) return;
+
+      try {
+        const rect = progressBarElement.getBoundingClientRect();
+        const percent = Math.max(0, Math.min(1, (moveEvent.clientX - rect.left) / rect.width));
+        const newPreviewTime = percent * duration;
+
+        // Atualizar preview em tempo real (sem modificar o áudio)
+        setPreviewTime(newPreviewTime);
+      } catch (error) {
+        console.error('❌ Erro no mouse move da barra de progresso:', error);
+        setIsDragging(false);
+        setIsHovering(false);
+        setPreviewTime(0); // Resetar preview em caso de erro
       }
     };
-    
+
     const handleMouseUp = (upEvent: MouseEvent) => {
-      if (!isDragging || !progressBarRef.current || !localDuration) return;
-      
       setIsDragging(false);
-      
-      const rect = progressBarRef.current.getBoundingClientRect();
-      const percent = Math.max(0, Math.min(1, (upEvent.clientX - rect.left) / rect.width));
-      const newTime = percent * localDuration;
-      
-      if (audioRef.current) {
-        audioRef.current.currentTime = newTime;
-        setLocalCurrentTime(newTime);
+
+      try {
+        if (audioRef.current && duration) {
+          // Usar o previewTime atual para sincronizar
+          if (isFinite(previewTime) && !isNaN(previewTime)) {
+            // AGORA sim alterar o áudio para a posição final
+            audioRef.current.currentTime = previewTime;
+            setCurrentTime(previewTime);
+          }
+        }
+      } catch (error) {
+        console.error('❌ Erro no mouse up da barra de progresso:', error);
       }
-      
-      // Se for o áudio ativo, sincronizar com o controle principal
-      if (isActiveAudio) {
-        seekAudio(newTime);
+
+      // Verificar se ainda está no hover da barra
+      if (!progressBarElement.matches(':hover')) {
+        setIsHovering(false);
       }
-      
+
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
     };
-    
+
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
   };
 
-  // Função para iniciar drag da barra
-  const handleProgressMouseDown = (e: React.MouseEvent) => {
-    // Só permitir se não clicou diretamente no knob
-    if (e.target === progressKnobRef.current) return;
-    handleKnobMouseDown(e);
-  };
-
-  // Atualizar progresso local
-  useEffect(() => {
-    if (!audioRef.current) return;
-
-    const updateProgress = () => {
-      if (audioRef.current) {
-        setLocalCurrentTime(audioRef.current.currentTime);
-        setLocalDuration(audioRef.current.duration || 0);
-      }
-    };
-
-    const onTimeUpdate = () => updateProgress();
-    const onLoadedMetadata = () => updateProgress();
-
-    audioRef.current.addEventListener('timeupdate', onTimeUpdate);
-    audioRef.current.addEventListener('loadedmetadata', onLoadedMetadata);
-
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.removeEventListener('timeupdate', onTimeUpdate);
-        audioRef.current.removeEventListener('loadedmetadata', onLoadedMetadata);
-      }
-    };
-  }, []);
-
-  // Atualizar posição do progresso
-  useEffect(() => {
-    if (!progressFillRef.current || !progressKnobRef.current || !localDuration) return;
-    
-    const percentage = localDuration > 0 ? (localCurrentTime / localDuration) * 100 : 0;
-    const clampedPercentage = Math.max(0, Math.min(100, percentage));
-    
-    progressFillRef.current.style.width = `${clampedPercentage}%`;
-    progressKnobRef.current.style.left = `${clampedPercentage}%`;
-  }, [localCurrentTime, localDuration]);
-
-  // Sincronizar com o controle principal quando for o áudio ativo
-  useEffect(() => {
-    if (isActiveAudio) {
-      setLocalCurrentTime(currentTime);
-      setLocalDuration(currentDuration);
-    }
-  }, [isActiveAudio, currentTime, currentDuration]);
+  // Usar previewTime durante drag, senão usar currentTime normal
+  const progressPercentage =
+    duration > 0
+      ? Math.max(
+          0,
+          Math.min(
+            100,
+            ((isDragging && previewTime > 0 ? previewTime : currentTime) / duration) * 100
+          )
+        )
+      : 0;
 
   return (
-    <Box
-      ref={containerRef}
-      className={`audio-message ${isCurrentlyPlaying ? 'playing' : ''} audio-message-debug`}
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: 1.5,
-        p: 1.5,
-        bgcolor: 'background.paper',
-        border: '1px solid',
-        borderColor: 'divider',
-        borderRadius: 2,
-        boxShadow: 1,
-        maxWidth: 380,
-        transition: 'all 0.2s ease',
-        '&.playing': {
-          borderColor: 'primary.main',
-          boxShadow: 2
-        }
-      }}
-    >
-              {/* Botão play/pause */}
-        <IconButton
-          size="small"
-          onClick={handleTogglePlayback}
-          className="audio-play-button"
-          sx={{
-            width: 40,
-            height: 40,
-            bgcolor: 'grey.100',
-            border: '1px solid',
-            borderColor: 'divider',
-            '&:hover': { bgcolor: 'grey.200' }
-          }}
-        >
-          {isCurrentlyPlaying ? <PauseIcon fontSize="small" /> : <PlayArrowIcon fontSize="small" />}
-        </IconButton>
+    <div className={`audio-message ${isPlaying ? 'playing' : ''} ${hasError ? 'error' : ''}`}>
+      {/* Botão play/pause */}
+      <button
+        type="button"
+        className="audio-play-button"
+        onClick={togglePlayback}
+        disabled={hasError}
+        title={hasError ? 'Áudio com erro - clique para tentar novamente' : ''}
+      >
+        <i
+          className={`fas fa-${hasError ? 'exclamation-triangle' : isPlaying ? 'pause' : 'play'}`}
+        />
+      </button>
 
       {/* Controles de áudio */}
-      <Box sx={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+      <div className="audio-controls-container">
         {/* Barra de progresso */}
-        <Box
-          ref={progressBarRef}
-          onClick={handleProgressClick}
-          onMouseDown={handleProgressMouseDown}
+        <div
           className="audio-progress-bar"
-          sx={{
-            position: 'relative',
-            height: 4,
-            bgcolor: 'divider',
-            borderRadius: 2,
-            cursor: 'pointer',
-            '&:hover .audio-progress-knob': {
-              opacity: 1
-            }
-          }}
+          onClick={handleProgressClick}
+          onMouseDown={handleProgressDrag}
+          onMouseEnter={handleProgressHover}
+          onMouseLeave={handleProgressLeave}
         >
-          <Box
-            ref={progressFillRef}
+          <div
             className="audio-progress-fill"
-            sx={{
-              height: '100%',
-              bgcolor: 'primary.main',
-              borderRadius: 2,
-              width: '0%',
-              transition: 'width 0.1s linear'
+            style={{
+              width: `${progressPercentage}%`,
+              transition: isDragging ? 'none' : 'width 0.1s ease',
             }}
           />
-          <Box
-            ref={progressKnobRef}
+          <div
             className="audio-progress-knob"
-            onMouseDown={handleKnobMouseDown}
-            sx={{
-              position: 'absolute',
-              width: 12,
-              height: 12,
-              bgcolor: 'primary.main',
-              border: '2px solid',
-              borderColor: 'white',
-              borderRadius: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
-              cursor: 'grab',
-              left: '0%',
-              boxShadow: 2,
-              opacity: 0,
-              transition: 'opacity 0.2s ease',
-              '&:active': {
-                cursor: 'grabbing'
-              }
+            style={{
+              left: `${progressPercentage}%`,
+              opacity: isHovering || isDragging ? 1 : 0,
             }}
           />
-        </Box>
+        </div>
 
-        {/* Informações de tempo e velocidade */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Typography
-            variant="caption"
-            color="text.secondary"
-            className="audio-time-display"
-            sx={{
-              fontFamily: 'monospace',
-              fontSize: '11px'
-            }}
-          >
-            {formatTime(localCurrentTime)} / {formatTime(localDuration)}
-          </Typography>
-
-          <Tooltip title="Velocidade de reprodução">
-            <Box
-              onClick={handleSpeedChange}
-              className="audio-speed-button"
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: 'auto',
-                minWidth: 30,
-                height: 24,
-                px: 1,
-                bgcolor: 'grey.100',
-                border: '1px solid',
-                borderColor: 'divider',
-                borderRadius: 1,
-                cursor: 'pointer',
-                fontSize: '10px',
-                fontWeight: 600,
-                '&:hover': { bgcolor: 'grey.200' }
-              }}
-            >
-              {isActiveAudio ? playbackRate : 1}x
-            </Box>
-          </Tooltip>
-        </Box>
-      </Box>
+        {/* Tempo e velocidade */}
+        <div className="audio-time-speed-container">
+          <div className="audio-time-display">
+            {hasError
+              ? 'Erro no áudio'
+              : `${formatTime(isDragging && previewTime > 0 ? previewTime : currentTime)} / ${formatTime(duration)}`}
+          </div>
+          {hasError ? (
+            retryCountRef.current < maxRetries ? (
+              <button
+                type="button"
+                className="audio-retry-button"
+                onClick={() => {
+                  setHasError(false);
+                  retryCountRef.current = 0;
+                  if (audioRef.current) {
+                    audioRef.current.load();
+                  }
+                }}
+                title="Tentar novamente"
+              >
+                🔄
+              </button>
+            ) : (
+              <span className="audio-error-text" title="Máximo de tentativas atingido">
+                ❌
+              </span>
+            )
+          ) : (
+            <button type="button" className="audio-speed-button" onClick={cycleSpeed}>
+              {playbackRate}x
+            </button>
+          )}
+        </div>
+      </div>
 
       {/* Elemento de áudio oculto */}
-      <audio
-        ref={audioRef}
-        src={url}
-        preload="metadata"
-        style={{ display: 'none' }}
-      />
-    </Box>
+      <audio ref={audioRef} src={url} preload="metadata" style={{ display: 'none' }} />
+    </div>
   );
 };

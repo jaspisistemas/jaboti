@@ -1,15 +1,9 @@
 // Componentes principais
-export { default as MessagesGrid } from './MessagesGrid';
 export { AudioRecorder } from './AudioRecorder';
+export { default as MessagesGrid } from './MessagesGrid';
 
-// Sistema de controle avançado de áudio
-export { useAdvancedAudioControl } from '../hooks/useAdvancedAudioControl';
+// Componente de áudio simplificado
 export { AudioMessage } from './AudioMessage';
-export { FloatingAudioControl } from './FloatingAudioControl';
-
-// Componente de demonstração
-export { AudioControlDemo } from './AudioControlDemo';
 
 // Tipos
-export type { MessageItem, Attachment } from './MessagesGrid';
-export type { AudioControlState } from '../hooks/useAdvancedAudioControl';
+export type { Attachment, MessageItem } from './MessagesGrid';
