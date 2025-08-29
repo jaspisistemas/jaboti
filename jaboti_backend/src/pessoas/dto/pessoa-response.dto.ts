@@ -1,5 +1,4 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { PessoaTipo, UserRole } from '@prisma/client';
 
 export class PessoaResponseDto {
   @ApiProperty()
@@ -22,10 +21,10 @@ export class PessoaResponseDto {
   dataNascimento?: Date | null;
   @ApiProperty({ required: false })
   genero?: string | null;
-  @ApiProperty({ enum: PessoaTipo })
-  type!: PessoaTipo;
-  @ApiProperty({ enum: UserRole })
-  role!: UserRole;
+  @ApiProperty({ enum: ['CLIENTE', 'USUARIO'] })
+  type!: string;
+  @ApiProperty({ enum: ['OPERATOR', 'SUPERVISOR', 'ADMIN'] })
+  role!: string;
   @ApiProperty({ required: false })
   photoUrl?: string | null;
   @ApiProperty({ required: false })

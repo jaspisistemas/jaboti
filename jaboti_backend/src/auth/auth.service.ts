@@ -1,10 +1,10 @@
-import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 // Switched to PessoasService unified model
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
+import { v4 as uuid } from 'uuid';
 import { PessoasService } from '../pessoas/pessoas.service';
 import { PrismaService } from '../prisma/prisma.service';
-import * as bcrypt from 'bcrypt';
-import { JwtService } from '@nestjs/jwt';
-import { v4 as uuid } from 'uuid';
 import { JwtPayload } from './interfaces/jwt-payload.interface';
 
 @Injectable()
@@ -17,11 +17,14 @@ export class AuthService {
 
   async validateUserByIdentifier(identifier: { user: string }, password: string) {
     // Login por username (campo user) exato.
-    const candidates = await this.prisma.pessoa.findMany({ where: { user: identifier.user, type: 'USUARIO' }, take: 2 });
+    const candidates = await this.prisma.pessoa.findMany({
+      where: { user: identifier.user, type: 'USUARIO' },
+      take: 2,
+    });
     if (candidates.length !== 1) throw new UnauthorizedException('Invalid credentials');
     const user = candidates[0];
     if (!user || user.type !== 'USUARIO') throw new UnauthorizedException('Invalid credentials');
-  const valid = await bcrypt.compare(password, user.passwordHash || '');
+    const valid = await bcrypt.compare(password, user.passwordHash || '');
     if (!valid) throw new UnauthorizedException('Invalid credentials');
     return user;
   }
@@ -39,8 +42,16 @@ export class AuthService {
     const expiresAt = new Date(Date.now() + refreshTtlSec * 1000);
     const tokenPlain = uuid() + '.' + uuid();
     const tokenHash = await bcrypt.hash(tokenPlain, 10);
+
+    // Gerar um ID único para o refresh token
+    const maxId = await this.prisma.refreshToken.aggregate({
+      where: { empCod: 1 },
+      _max: { id: true },
+    });
+    const nextId = (maxId._max.id || 0) + 1;
+
     await this.prisma.refreshToken.create({
-      data: { userId, tokenHash, expiresAt },
+      data: { empCod: 1, id: nextId, userId, tokenHash, expiresAt },
     });
     return { token: tokenPlain };
   }
@@ -48,7 +59,7 @@ export class AuthService {
   private async rotateRefreshToken(old: { id: number; revokedAt: Date | null }) {
     if (old.revokedAt) throw new UnauthorizedException('Token revoked');
     await this.prisma.refreshToken.update({
-      where: { id: old.id },
+      where: { empCod_id: { empCod: 1, id: old.id } },
       data: { revokedAt: new Date() },
     });
   }
@@ -73,11 +84,14 @@ export class AuthService {
     };
     const accessToken = this.accessToken(payload);
     const { token: refreshToken } = await this.issueRefreshToken(user.id, sessionId);
-  const companies = await this.prisma.companyUser.findMany({ where: { userId: user.id }, select: { companyId: true } });
+    const companies = await this.prisma.empresaUser.findMany({
+      where: { userId: user.id },
+      select: { empCod: true },
+    });
     return {
       accessToken,
       refreshToken,
-  companies: companies.map((c: { companyId: number }) => c.companyId),
+      companies: companies.map((c: { empCod: number }) => c.empCod),
       user: {
         id: user.id,
         name: user.name,
@@ -90,7 +104,9 @@ export class AuthService {
   async refresh(refreshToken: string) {
     const stored = await this.validateRefreshToken(refreshToken);
     if (stored.expiresAt < new Date()) throw new UnauthorizedException('Expired refresh token');
-    const user = await this.prisma.pessoa.findUnique({ where: { id: stored.userId } });
+    const user = await this.prisma.pessoa.findUnique({
+      where: { empCod_id: { empCod: 1, id: stored.userId } },
+    });
     if (!user) throw new UnauthorizedException();
 
     const sessionId = uuid();
@@ -114,11 +130,13 @@ export class AuthService {
   }
 
   async selectCompany(userId: number, companyId: number) {
-    const rel = await this.prisma.companyUser.findUnique({
-      where: { companyId_userId: { companyId, userId } },
+    const rel = await this.prisma.empresaUser.findUnique({
+      where: { empCod_userId: { empCod: companyId, userId } },
     });
     if (!rel) throw new BadRequestException('User not in company');
-  const user = await this.prisma.pessoa.findUnique({ where: { id: userId } });
+    const user = await this.prisma.pessoa.findUnique({
+      where: { empCod_id: { empCod: 1, id: userId } },
+    });
     if (!user) throw new UnauthorizedException();
     const sessionId = uuid();
     const payload: JwtPayload = {

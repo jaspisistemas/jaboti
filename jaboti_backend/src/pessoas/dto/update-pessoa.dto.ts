@@ -1,5 +1,4 @@
-import { IsEmail, IsEnum, IsOptional, IsString, Length, MinLength, MaxLength, IsDateString, IsBoolean } from 'class-validator';
-import { PessoaTipo, Genero, LeadStage, CanalPreferido } from '@prisma/client';
+import { IsEmail, IsOptional, IsString, Length, MinLength, MaxLength, IsDateString, IsBoolean, IsIn } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdatePessoaDto {
@@ -31,9 +30,9 @@ export class UpdatePessoaDto {
   @IsOptional() @IsDateString()
   dataNascimento?: string;
 
-  @ApiPropertyOptional({ enum: Genero })
-  @IsOptional() @IsEnum(Genero)
-  genero?: Genero;
+  @ApiPropertyOptional({ enum: ['MASCULINO', 'FEMININO', 'OUTRO', 'NAO_INFORMADO'] })
+  @IsOptional() @IsIn(['MASCULINO', 'FEMININO', 'OUTRO', 'NAO_INFORMADO'])
+  genero?: string;
 
   @ApiPropertyOptional({ example: 'João N.' })
   @IsOptional() @IsString() @Length(1,120)
@@ -70,18 +69,18 @@ export class UpdatePessoaDto {
   @ApiPropertyOptional({ description: 'Origem do lead' })
   @IsOptional() @IsString() @Length(0,60)
   origem?: string;
-  @ApiPropertyOptional({ enum: LeadStage })
-  @IsOptional() @IsEnum(LeadStage)
-  etapa?: LeadStage;
+  @ApiPropertyOptional({ enum: ['LEAD', 'OPORTUNIDADE', 'CLIENTE', 'INATIVO'] })
+  @IsOptional() @IsIn(['LEAD', 'OPORTUNIDADE', 'CLIENTE', 'INATIVO'])
+  etapa?: string;
   @ApiPropertyOptional({ description: 'Interesses (JSON)' })
   @IsOptional()
   interesses?: any;
   @ApiPropertyOptional({ description: 'Tags' })
   @IsOptional()
   tags?: string[];
-  @ApiPropertyOptional({ enum: CanalPreferido })
-  @IsOptional() @IsEnum(CanalPreferido)
-  canalPreferido?: CanalPreferido;
+  @ApiPropertyOptional({ enum: ['WHATSAPP', 'EMAIL', 'TELEFONE', 'SMS', 'OUTRO'] })
+  @IsOptional() @IsIn(['WHATSAPP', 'EMAIL', 'TELEFONE', 'SMS', 'OUTRO'])
+  canalPreferido?: string;
   @ApiPropertyOptional({ description: 'Aceita comunicações de marketing' })
   @IsOptional() @IsBoolean()
   consenteMarketing?: boolean;
@@ -92,9 +91,9 @@ export class UpdatePessoaDto {
   @IsOptional() @IsString() @Length(0, 1000)
   observacoes?: string;
 
-  @ApiPropertyOptional({ enum: PessoaTipo })
-  @IsOptional() @IsEnum(PessoaTipo)
-  type?: PessoaTipo;
+  @ApiPropertyOptional({ enum: ['CLIENTE', 'USUARIO'] })
+  @IsOptional() @IsIn(['CLIENTE', 'USUARIO'])
+  type?: string;
 
   @ApiPropertyOptional({ description: 'Nova senha (USUARIO).', minLength: 6, example: 'NovaSenhaSegura456' })
   @IsOptional() @IsString() @MinLength(6) @MaxLength(72)

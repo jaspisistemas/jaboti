@@ -4,55 +4,78 @@ const prisma = new PrismaClient();
 
 async function cleanInvalidMessages() {
   console.log('🧹 Iniciando limpeza de mensagens com valores padrão inválidos...');
-  
+
   const invalidDefaultValues = [
-    'Imagem', 'imagem', 'IMAGEM',
-    'Vídeo', 'vídeo', 'Video', 'video', 'VIDEO', 'VÍDEO',
-    'Documento', 'documento', 'DOCUMENTO',
-    'Arquivo', 'arquivo', 'ARQUIVO',
-    'Mídia', 'mídia', 'Media', 'media', 'MEDIA', 'MÍDIA',
-    'File', 'file', 'FILE',
-    'Image', 'image', 'IMAGE',
-    '"Imagem"', '"imagem"', '"IMAGEM"',
-    '"Vídeo"', '"vídeo"', '"Video"', '"video"', '"VIDEO"', '"VÍDEO"',
-    '"Documento"', '"documento"', '"DOCUMENTO"'
+    'Imagem',
+    'imagem',
+    'IMAGEM',
+    'Vídeo',
+    'vídeo',
+    'Video',
+    'video',
+    'VIDEO',
+    'VÍDEO',
+    'Documento',
+    'documento',
+    'DOCUMENTO',
+    'Arquivo',
+    'arquivo',
+    'ARQUIVO',
+    'Mídia',
+    'mídia',
+    'Media',
+    'media',
+    'MEDIA',
+    'MÍDIA',
+    'File',
+    'file',
+    'FILE',
+    'Image',
+    'image',
+    'IMAGE',
+    '"Imagem"',
+    '"imagem"',
+    '"IMAGEM"',
+    '"Vídeo"',
+    '"vídeo"',
+    '"Video"',
+    '"video"',
+    '"VIDEO"',
+    '"VÍDEO"',
+    '"Documento"',
+    '"documento"',
+    '"DOCUMENTO"',
   ];
 
   // Encontrar mensagens problemáticas
-  const problematicMessages = await prisma.message.findMany({
+  const problematicMessages = await prisma.mensagem.findMany({
     where: {
-      AND: [
-        { mediaType: { not: null } },
-        { content: { in: invalidDefaultValues } }
-      ]
+      AND: [{ mediaType: { not: null } }, { content: { in: invalidDefaultValues } }],
     },
     select: {
       id: true,
       content: true,
       mediaType: true,
       senderType: true,
-      timestamp: true
-    }
+      timestamp: true,
+    },
   });
 
   console.log(`📊 Encontradas ${problematicMessages.length} mensagens com valores inválidos:`);
-  problematicMessages.forEach(msg => {
+  problematicMessages.forEach((msg) => {
     console.log(`  - ID: ${msg.id}, Content: "${msg.content}", MediaType: ${msg.mediaType}`);
   });
 
   if (problematicMessages.length > 0) {
     console.log('🔧 Corrigindo mensagens...');
-    
-    const updateResult = await prisma.message.updateMany({
+
+    const updateResult = await prisma.mensagem.updateMany({
       where: {
-        AND: [
-          { mediaType: { not: null } },
-          { content: { in: invalidDefaultValues } }
-        ]
+        AND: [{ mediaType: { not: null } }, { content: { in: invalidDefaultValues } }],
       },
       data: {
-        content: ''
-      }
+        content: '',
+      },
     });
 
     console.log(`✅ ${updateResult.count} mensagens corrigidas!`);

@@ -241,23 +241,44 @@ export const AudioMessage: React.FC<AudioMessageProps> = ({ url, messageId }) =>
   };
 
   const handleProgressDrag = (e: React.MouseEvent<HTMLDivElement>) => {
+    console.log('🎯 handleProgressDrag iniciado');
     e.preventDefault();
     setIsDragging(true);
     setIsHovering(true); // Manter knob visível durante o drag
 
     // Armazenar referência para o elemento da barra de progresso
     const progressBarElement = e.currentTarget;
+    console.log('🎯 ProgressBar element:', progressBarElement);
 
     const handleMouseMove = (moveEvent: MouseEvent) => {
-      if (!isDragging || !audioRef.current || !duration) return;
+      console.log('🎯 Mouse move:', {
+        isDragging,
+        hasAudio: !!audioRef.current,
+        hasDuration: !!duration,
+        clientX: moveEvent.clientX,
+        rectLeft: progressBarElement.getBoundingClientRect().left,
+        rectWidth: progressBarElement.getBoundingClientRect().width,
+      });
+
+      if (!isDragging || !audioRef.current || !duration) {
+        console.log('🎯 Condições não atendidas, retornando');
+        return;
+      }
 
       try {
         const rect = progressBarElement.getBoundingClientRect();
         const percent = Math.max(0, Math.min(1, (moveEvent.clientX - rect.left) / rect.width));
         const newPreviewTime = percent * duration;
 
+        console.log('🎯 Calculando preview:', {
+          percent: percent.toFixed(3),
+          newPreviewTime: newPreviewTime.toFixed(2),
+          duration: duration.toFixed(2),
+        });
+
         // Atualizar preview em tempo real (sem modificar o áudio)
         setPreviewTime(newPreviewTime);
+        console.log('🎯 Preview time atualizado para:', newPreviewTime.toFixed(2));
       } catch (error) {
         console.error('❌ Erro no mouse move da barra de progresso:', error);
         setIsDragging(false);
@@ -267,15 +288,27 @@ export const AudioMessage: React.FC<AudioMessageProps> = ({ url, messageId }) =>
     };
 
     const handleMouseUp = (upEvent: MouseEvent) => {
+      console.log('🎯 Mouse up, finalizando drag');
       setIsDragging(false);
 
       try {
         if (audioRef.current && duration) {
-          // Usar o previewTime atual para sincronizar
-          if (isFinite(previewTime) && !isNaN(previewTime)) {
-            // AGORA sim alterar o áudio para a posição final
-            audioRef.current.currentTime = previewTime;
-            setCurrentTime(previewTime);
+          // Calcular a posição final baseada na posição do mouse
+          const rect = progressBarElement.getBoundingClientRect();
+          const percent = Math.max(0, Math.min(1, (upEvent.clientX - rect.left) / rect.width));
+          const finalTime = percent * duration;
+
+          console.log('🎯 Posição final calculada:', {
+            percent: percent.toFixed(3),
+            finalTime: finalTime.toFixed(2),
+            duration: duration.toFixed(2),
+          });
+
+          // AGORA sim alterar o áudio para a posição final
+          if (isFinite(finalTime) && !isNaN(finalTime)) {
+            console.log('🎯 Definindo currentTime do áudio para:', finalTime.toFixed(2));
+            audioRef.current.currentTime = finalTime;
+            setCurrentTime(finalTime);
           }
         }
       } catch (error) {
@@ -289,8 +322,10 @@ export const AudioMessage: React.FC<AudioMessageProps> = ({ url, messageId }) =>
 
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      console.log('🎯 Event listeners removidos');
     };
 
+    console.log('🎯 Adicionando event listeners para mousemove e mouseup');
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
   };
@@ -306,6 +341,14 @@ export const AudioMessage: React.FC<AudioMessageProps> = ({ url, messageId }) =>
           )
         )
       : 0;
+
+  console.log('🎯 Progress percentage calculado:', {
+    isDragging,
+    previewTime: previewTime.toFixed(2),
+    currentTime: currentTime.toFixed(2),
+    duration: duration.toFixed(2),
+    progressPercentage: progressPercentage.toFixed(2),
+  });
 
   return (
     <div className={`audio-message ${isPlaying ? 'playing' : ''} ${hasError ? 'error' : ''}`}>
@@ -333,14 +376,14 @@ export const AudioMessage: React.FC<AudioMessageProps> = ({ url, messageId }) =>
           onMouseLeave={handleProgressLeave}
         >
           <div
-            className="audio-progress-fill"
+            className={`audio-progress-fill ${isDragging ? 'dragging' : ''}`}
             style={{
               width: `${progressPercentage}%`,
               transition: isDragging ? 'none' : 'width 0.1s ease',
             }}
           />
           <div
-            className="audio-progress-knob"
+            className={`audio-progress-knob ${isDragging ? 'dragging' : ''}`}
             style={{
               left: `${progressPercentage}%`,
               opacity: isHovering || isDragging ? 1 : 0,

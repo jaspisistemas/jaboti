@@ -3,222 +3,333 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlserver"
   url      = env("DATABASE_URL")
 }
 
-model Company {
-  id           Int                 @id @default(autoincrement())
-  name         String              @unique
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @updatedAt
+model Empresa {
+  id           Int                 @id @default(autoincrement()) @map("EmpCod")
+  empRaz       String              @unique @map("EmpRaz") @db.VarChar(200)
+  empCmp       Int                 @map("EmpCmp") @default(1)
+  empVer       String              @map("EmpVer") @db.VarChar(20) @default("v1.0.0")
+  empDirFis    String              @map("EmpDirFis") @db.VarChar(500)
+  empDirVir    String              @map("EmpDirVir") @db.VarChar(500)
+  empCodPas    String              @map("EmpCodPas") @db.VarChar(20)
+  empCodSec    String?             @map("EmpCodSec") @db.VarChar(500)
+  createdAt    DateTime            @default(now()) @map("EmpDtaCri")
+  updatedAt    DateTime            @updatedAt @map("EmpUltAtu")
+  
+  // Relacionamentos
+  pessoas      Pessoa[]
   atendimentos Atendimento[]
-  users        CompanyUser[]
-  departments  Department[]
+  users        EmpresaUser[]
+  departments  Departamento[]
   apiUsage     ExternalApiUsage[]
   fileUploads  FileUpload[]
   integrations IntegrationConfig[]
   notes        Note[]
+  mensagens    Mensagem[]
+  refreshTokens RefreshToken[]
+  parametros   Parametro[]
 }
 
 model Pessoa {
-  id                    Int              @id @default(autoincrement()) @map("PesCod")
-  name                  String           @map("PesNom")
-  chatName              String?          @map("PesNomChat")
-  phone                 String?          @map("PesFon") @db.VarChar(30)
-  email                 String?          @unique @map("PesEml") @db.VarChar(120)
-  extCompany            String?          @map("PesExtEmp")
-  extModules            String?          @map("PesExtModSis")
-  type                  PessoaTipo       @map("PesTip")
-  passwordHash          String
-  role                  UserRole         @default(OPERATOR)
-  active                Boolean          @default(true) @map("PesIsAtv")
-  online                Boolean          @default(false) @map("PesIsOnline")
-  lastSeenVersion       String?          @map("PesUltVerVis")
-  photoUrl              String?          @map("PesFoto")
-  updatedAt             DateTime         @updatedAt
-  user                  String?          @unique @map("PesUsr")
-  bairro                String?          @map("PesBai") @db.VarChar(90)
-  cep                   String?          @map("PesCEP") @db.VarChar(12)
-  canalPreferido        CanalPreferido?  @map("PesCanPref")
-  cargo                 String?          @map("PesCar") @db.VarChar(90)
-  cidade                String?          @map("PesCid") @db.VarChar(90)
-  complemento           String?          @map("PesComp") @db.VarChar(60)
-  consenteMarketing     Boolean          @default(false) @map("PesConsMkt")
-  documento             String?          @map("PesDoc") @db.VarChar(40)
-  dataNascimento        DateTime?        @map("PesDtaNasc")
-  empresa               String?          @map("PesEmp") @db.VarChar(140)
-  endereco              String?          @map("PesEnd") @db.VarChar(180)
-  etapa                 LeadStage?       @map("PesEtp")
-  genero                Genero?          @map("PesGen")
-  interesses            Json?            @map("PesInts")
-  numero                String?          @map("PesNum") @db.VarChar(12)
-  observacoes           String?          @map("PesObs")
-  origem                String?          @map("PesOrig") @db.VarChar(60)
-  tipoDocumento         String?          @map("PesTipDoc") @db.VarChar(16)
-  estado                String?          @map("PesUF") @db.VarChar(2)
-  ultimoContatoEm       DateTime?        @map("PesUltCont")
-  whatsappOptIn         Boolean          @default(false) @map("PesWppOptIn")
-  tags                  String[]
-  createdAt             DateTime         @default(now())
-  atendimentosAtendente Atendimento[]    @relation("AtendimentoAttendant")
-  atendimentosCliente   Atendimento[]    @relation("AtendimentoClient")
-  companies             CompanyUser[]
-  departments           DepartmentUser[]
-  messagesAuthored      Message[]        @relation("MessageSenderUser")
-  notesAuthored         Note[]           @relation("NoteAuthor")
-  notesAsClient         Note[]           @relation("NoteClient")
-  refreshTokens         RefreshToken[]
+  empCod                 Int              @map("EmpCod")
+  id                     Int              @map("PesCod")
+  name                   String           @map("PesNom")
+  chatName               String?          @map("PesNomChat")
+  phone                  String?          @map("PesFon") @db.VarChar(30)
+  email                  String?          @map("PesEml") @db.VarChar(120)
+  extCompany             String?          @map("PesExtEmp")
+  extModules             String?          @map("PesExtModSis")
+  type                   String           @map("PesTip") @db.VarChar(20)
+  passwordHash           String?
+  role                   String           @default("OPERATOR") @db.VarChar(20)
+  active                 Boolean          @default(true) @map("PesIsAtv")
+  online                 Boolean          @default(false) @map("PesIsOnline")
+  lastSeenVersion        String?          @map("PesUltVerVis")
+  photoUrl               String?          @map("PesFoto")
+  updatedAt              DateTime         @updatedAt
+  user                   String?          @map("PesUsr")
+  bairro                 String?          @map("PesBai") @db.VarChar(90)
+  cep                    String?          @map("PesCEP") @db.VarChar(12)
+  canalPreferido         String?          @map("PesCanPref") @db.VarChar(20)
+  cargo                  String?          @map("PesCar") @db.VarChar(90)
+  cidade                 String?          @map("PesCid") @db.VarChar(90)
+  complemento            String?          @map("PesComp") @db.VarChar(60)
+  consenteMarketing      Boolean          @default(false) @map("PesConsMkt")
+  documento              String?          @map("PesDoc") @db.VarChar(40)
+  dataNascimento         DateTime?        @map("PesDtaNasc")
+  empresa                String?          @map("PesEmp") @db.VarChar(140)
+  endereco               String?          @map("PesEnd") @db.VarChar(180)
+  etapa                  String?          @map("PesEtp") @db.VarChar(20)
+  genero                 String?          @map("PesGen") @db.VarChar(20)
+  interesses             String?          @map("PesInts") @db.NText
+  numero                 String?          @map("PesNum") @db.VarChar(12)
+  observacoes            String?          @map("PesObs")
+  origem                 String?          @map("PesOrig") @db.VarChar(60)
+  tipoDocumento          String?          @map("PesTipDoc") @db.VarChar(16)
+  estado                 String?          @map("PesUF") @db.VarChar(2)
+  ultimoContatoEm        DateTime?        @map("PesUltCont")
+  whatsappOptIn          Boolean          @default(false) @map("PesWppOptIn")
+  tags                   String?          @map("PesTags") @db.VarChar(500)
+  createdAt              DateTime         @default(now())
+  
+  // Relacionamentos
+  company                Empresa          @relation(fields: [empCod], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  atendimentosAtendente  Atendimento[]    @relation("AtendimentoAttendant")
+  atendimentosCliente    Atendimento[]    @relation("AtendimentoClient")
+  departments            DepartamentoPessoa[]
+  mensagensAuthored      Mensagem[]        @relation("MensagemSenderUser")
+  notesAuthored          Note[]           @relation("NoteAuthor")
+  notesAsClient          Note[]           @relation("NoteClient")
+  refreshTokens          RefreshToken[]
+  empresaUsers           EmpresaUser[]
+  fileUploads            FileUpload[]
 
+  @@id([empCod, id])
   @@index([type])
   @@index([online])
   @@index([documento])
+  @@index([empCod])
 }
 
-model CompanyUser {
-  companyId Int
-  userId    Int
-  primary   Boolean @default(false)
-  company   Company @relation(fields: [companyId], references: [id])
-  user      Pessoa  @relation(fields: [userId], references: [id])
+model EmpresaUser {
+  empCod     Int      @map("EmpCod")
+  userId     Int
+  primary    Boolean @default(false)
+  
+  // Relacionamentos
+  company    Empresa @relation(fields: [empCod], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  user       Pessoa  @relation(fields: [empCod, userId], references: [empCod, id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@id([companyId, userId])
+  @@id([empCod, userId])
 }
 
-model Department {
-  id           Int              @id @default(autoincrement())
-  name         String
-  companyId    Int
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+model Departamento {
+  empCod       Int              @map("EmpCod")
+  id           Int              @map("DepCod")
+  depNom       String           @map("DepNom") @db.VarChar(200)
+  depDtaCri    DateTime         @default(now()) @map("DepDtaCri")
+  depUltAtu    DateTime         @updatedAt @map("DepUltAtu")
+  
+  // Relacionamentos
+  company      Empresa          @relation(fields: [empCod], references: [id], onDelete: NoAction, onUpdate: NoAction)
   atendimentos Atendimento[]
-  company      Company          @relation(fields: [companyId], references: [id])
-  users        DepartmentUser[]
+  users        DepartamentoPessoa[]
 
-  @@unique([companyId, name])
-  @@index([companyId])
+  @@id([empCod, id])
+  @@unique([empCod, depNom])
+  @@index([empCod])
 }
 
-model DepartmentUser {
-  departmentId Int
+model DepartamentoPessoa {
+  empCod       Int         @map("EmpCod")
+  depCod       Int         @map("DepCod")
   userId       Int
-  department   Department @relation(fields: [departmentId], references: [id])
-  user         Pessoa     @relation(fields: [userId], references: [id])
+  department   Departamento  @relation(fields: [empCod, depCod], references: [empCod, id], onDelete: NoAction, onUpdate: NoAction)
+  user         Pessoa      @relation(fields: [empCod, userId], references: [empCod, id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@id([departmentId, userId])
+  @@id([empCod, depCod, userId])
 }
 
 model Atendimento {
-  empresaId        Int
-  id               Int
-  clienteId        Int
-  atendenteId      Int?
-  departamentoId   Int?
-  status           AtendimentoStatus @default(BOT)
-  inicioEm         DateTime          @default(now())
-  fimEm            DateTime?
-  inicioHumanoEm   DateTime?
-  ultimaMensagemEm DateTime?         @default(now())
-  ultimaMensagem   String?           @db.VarChar(500)
-  criadoEm         DateTime          @default(now())
-  atualizadoEm     DateTime          @updatedAt
-  attendant        Pessoa?           @relation("AtendimentoAttendant", fields: [atendenteId], references: [id])
-  client           Pessoa            @relation("AtendimentoClient", fields: [clienteId], references: [id])
-  department       Department?       @relation(fields: [departamentoId], references: [id])
-  company          Company           @relation(fields: [empresaId], references: [id])
+  empCod                    Int       @map("EmpCod")
+  id                        Int       @map("AtendimCod")
+  empTelGuid               String?   @map("EmpTelGUID") @db.VarChar(100)
+  empTelNum                String?   @map("EmpTelNum") @db.VarChar(30)
+  empTelNom                String?   @map("EmpTelNom") @db.VarChar(200)
+  atendimDtaHorIni         DateTime  @default(now()) @map("AtendimDtaHorIni")
+  atendimDtaHorFin         DateTime? @map("AtendimDtaHorFin")
+  atendimTipCan            String?   @map("AtendimTipCan") @db.VarChar(50)
+  atendimTipCanVer         String?   @map("AtendimTipCanVer") @db.VarChar(50)
+  atendimStatus            String    @default("BOT") @map("AtendimStatus") @db.VarChar(20)
+  atendimIsBot             Boolean   @default(true) @map("AtendimIsBot")
+  atendimBotNumErr         Int?      @map("AtendimBotNumErr")
+  atendimPro               String?   @map("AtendimPro") @db.VarChar(100)
+  atendimIsPriv            Boolean   @default(false) @map("AtendimIsPriv")
+  atendimDtaHorUltMsg      DateTime? @map("AtendimDtaHorUltMsg")
+  botGuid                  String?   @map("BotGUID") @db.VarChar(100)
+  atendimDepGuid           String?   @map("AtendimDepGUID") @db.VarChar(100)
+  atendimDepNom            String?   @map("AtendimDepNom") @db.VarChar(200)
+  atendimCliGuid           String    @map("AtendimCliGUID") @db.VarChar(100)
+  atendimCliNom            String?   @map("AtendimCliNom") @db.VarChar(200)
+  atendimCliFon            String?   @map("AtendimCliFon") @db.VarChar(30)
+  atendimCliFotoGuid       String?   @map("AtendimCliFotoGUID") @db.VarChar(100)
+  atendimCliFotoFisVir     String?   @map("AtendimCliFotoFisVir") @db.VarChar(500)
+  atendimCliExtEmp         String?   @map("AtendimCliExtEmp") @db.VarChar(200)
+  atendimCliExtModSis      String?   @map("AtendimCliExtModSis") @db.VarChar(200)
+  atendimCliTip            String?   @map("AtendimCliTip") @db.VarChar(20)
+  atendimAtendGuid         String?   @map("AtendimAtendGUID") @db.VarChar(100)
+  atendimAtendNom          String?   @map("AtendimAtendNom") @db.VarChar(200)
+  atendimAtendFon          String?   @map("AtendimAtendFon") @db.VarChar(30)
+  atendimAtendFotoGuid     String?   @map("AtendimAtendFotoGUID") @db.VarChar(100)
+  atendimAtendFotoFisVir   String?   @map("AtendimAtendFotoFisVir") @db.VarChar(500)
+  atendimAtendTip          String?   @map("AtendimAtendTip") @db.VarChar(20)
+  atendimAtendGAMGuid      String?   @map("AtendimAtendGAMGuid") @db.VarChar(100)
+  
+  // Campos de relacionamento (mantidos para compatibilidade)
+  clienteId                 Int       @map("AtendimCliCod")
+  atendenteId               Int?      @map("AtendimAtendCod")
+  departamentoId            Int?      @map("AtendimDepCod")
+  
+  // Relacionamentos
+  attendant                 Pessoa?   @relation("AtendimentoAttendant", fields: [empCod, atendenteId], references: [empCod, id], onDelete: NoAction, onUpdate: NoAction)
+  client                    Pessoa    @relation("AtendimentoClient", fields: [empCod, clienteId], references: [empCod, id], onUpdate: NoAction)
+  department                Departamento? @relation(fields: [empCod, departamentoId], references: [empCod, id])
+  company                   Empresa   @relation(fields: [empCod], references: [id], onUpdate: NoAction)
 
-
-  @@id([empresaId, id])
-  @@index([empresaId, status])
+  @@id([empCod, id])
+  @@index([empCod, atendimStatus])
   @@index([atendenteId])
   @@index([departamentoId])
+  @@index([atendimCliGuid])
 }
 
-model Message {
-  id                   Int         @id @default(autoincrement())
-  senderType           SenderType
-  content              String?
-  mediaType            String?
-  metadata             Json?
-  timestamp            DateTime    @default(now())
-  editedAt             DateTime?
-  originalContent      String?
-  readAt               DateTime?
-  replyToId            Int?
-  senderUserId         Int?
-  atendimentoEmpresaId Int
-  atendimentoId        Int
-  replyTo              Message?    @relation("MessageReplies", fields: [replyToId], references: [id])
-  replies              Message[]   @relation("MessageReplies")
-  senderUser           Pessoa?     @relation("MessageSenderUser", fields: [senderUserId], references: [id])
+model Mensagem {
+  empCod               Int       @map("EmpCod")
+  id                   Int       @map("MsgCod")
+  msgGuid             String    @unique @map("MsgGUID") @db.VarChar(100)
+  msgCod2             Int?      @map("MsgCod2")
+  msgConteudo         String?   @map("MsgConteudo") @db.NText
+  msgTxt              String?   @map("MsgTxt") @db.NText
+  msgOrd              Int?      @map("MsgOrd")
+  msgAppNome          String?   @map("MsgAppNome") @db.VarChar(100)
+  msgDtaHorEnv        DateTime  @default(now()) @map("MsgDtaHorEnv")
+  msgDtaHorLid        DateTime? @map("MsgDtaHorLid")
+  msgIsLid            Boolean   @default(false) @map("MsgIsLid")
+  msgSts              String?   @map("MsgSts") @db.VarChar(20)
+  msgIsBot            Boolean   @default(false) @map("MsgIsBot")
+  msgTip              String?   @map("MsgTip") @db.VarChar(20)
+  msgIsEdt            Boolean   @default(false) @map("MsgIsEdt")
+  msgOldTxt           String?   @map("MsgOldTxt") @db.NText
+  msgOldCod           Int?      @map("MsgOldCod")
+  msgRea              String?   @map("MsgRea") @db.VarChar(20)
+  janAtendimGUID      String?   @map("JanAtendimGUID") @db.VarChar(100)
+  janAtendimId        Int       @map("JanAtendimId")
+  msgRemGUID          String?   @map("MsgRemGUID") @db.VarChar(100)
+  msgRemFon           String?   @map("MsgRemFon") @db.VarChar(30)
+  msgRemFotoURL       String?   @map("MsgRemFotoURL") @db.VarChar(500)
+  msgRemNom           String?   @map("MsgRemNom") @db.VarChar(200)
+  msgRemTip           String?   @map("MsgRemTip") @db.VarChar(20)
+  msgDestGUID         String?   @map("MsgDestGUID") @db.VarChar(100)
+  msgDestFon          String?   @map("MsgDestFon") @db.VarChar(30)
+  msgDestFotoURL      String?   @map("MsgDestFotoURL") @db.VarChar(500)
+  msgDestNom          String?   @map("MsgDestNom") @db.VarChar(200)
+  msgDestTip          String?   @map("MsgDestTip") @db.VarChar(20)
+  msgRespGUID         String?   @map("MsgRespGUID") @db.VarChar(100)
+  msgRespTxt          String?   @map("MsgRespTxt") @db.NText
+  msgRespTip          String?   @map("MsgRespTip") @db.VarChar(20)
+  msgRespArqGUID      String?   @map("MsgRespArqGUID") @db.VarChar(100)
+  msgRespArqNom       String?   @map("MsgRespArqNom") @db.VarChar(200)
+  msgRespArqExt       String?   @map("MsgRespArqExt") @db.VarChar(20)
+  msgRespArqNomCom    String?   @map("MsgRespArqNomCom") @db.VarChar(200)
+  msgRespArqURLFisVir String?   @map("MsgRespArqURLFisVir") @db.VarChar(500)
+  msgRespIsMe         Boolean   @default(false) @map("MsgRespIsMe")
+  msgArqGUID          String?   @map("MsgArqGUID") @db.VarChar(100)
+  msgArqNom           String?   @map("MsgArqNom") @db.VarChar(200)
+  msgArqNomCom        String?   @map("MsgArqNomCom") @db.VarChar(200)
+  msgArqExt           String?   @map("MsgArqExt") @db.VarChar(20)
+  msgArqTam           Int?      @map("MsgArqTam")
+  msgArqTip           String?   @map("MsgArqTip") @db.VarChar(50)
+  msgArqURLFisVir     String?   @map("MsgArqURLFisVir") @db.VarChar(500)
+  
+  // Campos de relacionamento
+  msgRemCod           Int?      @map("MsgRemCod")
+  
+  // Relacionamentos
+  company              Empresa   @relation(fields: [empCod], references: [id])
+  replyTo              Mensagem? @relation("MensagemReplies", fields: [empCod, msgOldCod], references: [empCod, id], onDelete: NoAction, onUpdate: NoAction)
+  replies              Mensagem[] @relation("MensagemReplies")
+  senderUser           Pessoa?   @relation("MensagemSenderUser", fields: [empCod, msgRemCod], references: [empCod, id], onDelete: NoAction, onUpdate: NoAction)
 
-  @@index([replyToId])
-  @@index([atendimentoEmpresaId, atendimentoId, timestamp])
-  @@index([atendimentoEmpresaId, atendimentoId])
+  @@id([empCod, id])
+  @@index([empCod])
+  @@index([empCod, msgOldCod])
+  @@index([empCod, janAtendimId, msgDtaHorEnv])
+  @@index([empCod, janAtendimId])
+  @@index([msgGuid])
+  @@index([janAtendimGUID])
 }
 
 model Note {
-  id                   Int          @id @default(autoincrement())
-  companyId            Int
+  empCod               Int      @map("EmpCod")
+  id                   Int      @map("NoteCod")
   clientId             Int?
   authorId             Int
   content              String?
-  createdAt            DateTime     @default(now())
+  createdAt            DateTime @default(now())
   atendimentoEmpresaId Int?
   atendimentoId        Int?
-  author               Pessoa       @relation("NoteAuthor", fields: [authorId], references: [id])
-  client               Pessoa?      @relation("NoteClient", fields: [clientId], references: [id])
-  company              Company      @relation(fields: [companyId], references: [id])
+  
+  // Relacionamentos
+  author               Pessoa   @relation("NoteAuthor", fields: [empCod, authorId], references: [empCod, id], onUpdate: NoAction)
+  client               Pessoa?  @relation("NoteClient", fields: [empCod, clientId], references: [empCod, id], onDelete: NoAction, onUpdate: NoAction)
+  company              Empresa  @relation(fields: [empCod], references: [id])
 
-  @@index([companyId])
-  @@index([authorId])
+  @@id([empCod, id])
+  @@index([empCod])
+  @@index([empCod, authorId])
+  @@index([empCod, clientId])
   @@index([atendimentoEmpresaId, atendimentoId])
 }
 
 model IntegrationConfig {
-  id          Int               @id @default(autoincrement())
-  companyId   Int
-  platform    Platform
+  empCod      Int      @map("EmpCod")
+  id          Int      @map("IntConfigCod")
+  platform    String   @db.VarChar(20)
   apiKey      String
-  status      IntegrationStatus @default(ACTIVE)
-  extraConfig Json?
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @updatedAt
-  company     Company           @relation(fields: [companyId], references: [id])
+  status      String   @default("ACTIVE") @db.VarChar(20)
+  extraConfig String?  @db.NText
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relacionamentos
+  company     Empresa  @relation(fields: [empCod], references: [id])
 
-  @@unique([companyId, platform])
-  @@index([companyId])
+  @@id([empCod, id])
+  @@unique([empCod, platform])
+  @@index([empCod])
 }
 
 model RefreshToken {
-  id         Int       @id @default(autoincrement())
+  empCod     Int       @map("EmpCod")
+  id         Int       @map("RefTokCod")
   userId     Int
   tokenHash  String
   expiresAt  DateTime
   createdAt  DateTime  @default(now())
   revokedAt  DateTime?
   replacedBy Int?
-  user       Pessoa    @relation(fields: [userId], references: [id])
+  
+  // Relacionamentos
+  user       Pessoa    @relation(fields: [empCod, userId], references: [empCod, id])
+  company    Empresa   @relation(fields: [empCod], references: [id])
 
-  @@index([userId])
+  @@id([empCod, id])
+  @@index([empCod, userId])
   @@index([expiresAt])
 }
 
 model ExternalApiUsage {
-  id         Int      @id @default(autoincrement())
-  companyId  Int
-  platform   Platform
+  empCod     Int      @map("EmpCod")
+  id         Int      @map("ApiUsageCod")
+  platform   String   @db.VarChar(20)
   cost       Decimal  @db.Decimal(10, 2)
-  meta       Json?
+  meta       String?  @db.NText
   occurredAt DateTime @default(now())
-  company    Company  @relation(fields: [companyId], references: [id])
+  
+  // Relacionamentos
+  company    Empresa  @relation(fields: [empCod], references: [id])
 
-  @@index([companyId, platform])
+  @@id([empCod, id])
+  @@index([empCod, platform])
   @@index([occurredAt])
 }
 
 model FileUpload {
-  id           Int      @id @default(autoincrement())
+  empCod       Int      @map("EmpCod")
+  id           Int      @map("FileUploadCod")
   filename     String   @unique
   originalName String
   mimetype     String
@@ -226,72 +337,36 @@ model FileUpload {
   path         String
   url          String
   uploadType   String
-  companyId    Int
   relatedId    Int?
   relatedType  String?
   uploadedBy   Int?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
-  company      Company  @relation(fields: [companyId], references: [id])
+  
+  // Relacionamentos
+  company      Empresa  @relation(fields: [empCod], references: [id])
+  user         Pessoa?  @relation(fields: [empCod, uploadedBy], references: [empCod, id])
 
-  @@index([companyId])
+  @@id([empCod, id])
+  @@index([empCod])
   @@index([uploadType])
   @@index([relatedId, relatedType])
-  @@index([uploadedBy])
+  @@index([empCod, uploadedBy])
 }
 
-enum UserRole {
-  OPERATOR
-  SUPERVISOR
-  ADMIN
-}
-
-enum PessoaTipo {
-  CLIENTE
-  USUARIO
-}
-
-enum AtendimentoStatus {
-  BOT
-  ATIVO
-  ENCERRADO
-  PENDENTE
-}
-
-enum SenderType {
-  CLIENT
-  ATTENDANT
-  BOT
-}
-
-enum Platform {
-  CloudAPI
-  EvolutionAPI
-}
-
-enum IntegrationStatus {
-  ACTIVE
-  INACTIVE
-}
-
-enum Genero {
-  MASCULINO
-  FEMININO
-  OUTRO
-  NAO_INFORMADO
-}
-
-enum LeadStage {
-  LEAD
-  OPORTUNIDADE
-  CLIENTE
-  INATIVO
-}
-
-enum CanalPreferido {
-  WHATSAPP
-  EMAIL
-  TELEFONE
-  SMS
-  OUTRO
+model Parametro {
+  empCod     Int      @map("EmpCod")
+  parSeq     Int      @map("ParSeq")
+  parFilCod  Int      @map("ParFilCod") @default(1)
+  parCod     String   @map("ParCod") @db.NVarChar(40)
+  parNom     String   @map("ParNom") @db.NVarChar(100)
+  parUltCod  Int      @map("ParUltCod") @default(1)
+  
+  // Relacionamentos
+  company    Empresa  @relation(fields: [empCod], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  
+  @@id([empCod, parSeq])
+  @@unique([empCod, parFilCod, parCod])
+  @@index([empCod])
+  @@index([empCod, parCod])
 }

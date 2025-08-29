@@ -1,9 +1,9 @@
+import { UnauthorizedException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
+import * as bcrypt from 'bcrypt';
+import { CodigoSequencialService } from '../src/common/services/codigo-sequencial.service';
 import { PessoasService } from '../src/pessoas/pessoas.service';
 import { PrismaService } from '../src/prisma/prisma.service';
-import { PessoaTipo } from '@prisma/client';
-import { UnauthorizedException } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
 
 // Simple in-memory mocks for Prisma
 class PrismaMock {
@@ -16,21 +16,41 @@ class PrismaMock {
   companyUser = { findUnique: jest.fn() } as any;
 }
 
+// Mock para CodigoSequencialService
+class CodigoSequencialMock {
+  gerarProximoCodigo = jest.fn().mockResolvedValue(1);
+}
+
 describe('PessoasService', () => {
   let service: PessoasService;
   let prisma: PrismaMock;
+  let codigoSequencial: CodigoSequencialMock;
 
   beforeEach(async () => {
     prisma = new PrismaMock();
+    codigoSequencial = new CodigoSequencialMock();
     const moduleRef = await Test.createTestingModule({
-      providers: [PessoasService, { provide: PrismaService, useValue: prisma }],
+      providers: [
+        PessoasService,
+        { provide: PrismaService, useValue: prisma },
+        { provide: CodigoSequencialService, useValue: codigoSequencial },
+      ],
     }).compile();
     service = moduleRef.get(PessoasService);
   });
 
   it('cria USUARIO com password custom', async () => {
-    prisma.pessoa.create.mockResolvedValue({ id: 1, name: 'User', type: 'USUARIO', passwordHash: 'hash' });
-    const created = await service.create(10, { name: 'User', type: PessoaTipo.USUARIO, password: 'SenhaForte123' } as any);
+    prisma.pessoa.create.mockResolvedValue({
+      id: 1,
+      name: 'User',
+      type: 'USUARIO',
+      passwordHash: 'hash',
+    });
+    const created = await service.create(10, {
+      name: 'User',
+      type: 'USUARIO',
+      password: 'SenhaForte123',
+    } as any);
     expect(prisma.pessoa.create).toHaveBeenCalled();
     const callData = prisma.pessoa.create.mock.calls[0][0].data;
     expect(callData.passwordHash).toBeDefined();
@@ -45,15 +65,17 @@ describe('PessoasService', () => {
     expect(updateData.passwordHash).toBeDefined();
   });
 
-  it('create CLIENTE ignora senha fornecida e usa hash de string vazia', async () => {
-  prisma.pessoa.create.mockImplementation(async ({ data }: any) => data); // echo
-    const created = await service.create(10, { name: 'Cliente', type: PessoaTipo.CLIENTE, password: 'NaoDeveriaUsar123' } as any);
+  it('create CLIENTE ignora senha fornecida e não define passwordHash', async () => {
+    prisma.pessoa.create.mockImplementation(async ({ data }: any) => data); // echo
+    const created = await service.create(10, {
+      name: 'Cliente',
+      type: 'CLIENTE',
+      password: 'NaoDeveriaUsar123',
+    } as any);
     // passwordHash is inside prisma call argument, not in returned created because echo includes it
     const callData = prisma.pessoa.create.mock.calls[0][0].data;
-    expect(callData.type).toBe(PessoaTipo.CLIENTE);
-    expect(callData.passwordHash).toBeDefined();
-    const matchesEmpty = await bcrypt.compare('', callData.passwordHash);
-    expect(matchesEmpty).toBe(true);
+    expect(callData.type).toBe('CLIENTE');
+    expect(callData.passwordHash).toBeNull(); // Clientes não devem ter senha
   });
 
   describe('changePassword', () => {
@@ -61,7 +83,10 @@ describe('PessoasService', () => {
       const oldHash = await bcrypt.hash('OldPass123', 4);
       prisma.pessoa.findUnique.mockResolvedValue({ id: 5, type: 'USUARIO', passwordHash: oldHash });
       prisma.pessoa.update.mockResolvedValue({});
-      const res = await service.changePassword(5, { senhaAtual: 'OldPass123', novaSenha: 'NewPass456' } as any);
+      const res = await service.changePassword(1, 5, {
+        senhaAtual: 'OldPass123',
+        novaSenha: 'NewPass456',
+      } as any);
       expect(res.changed).toBe(true);
       const newHash = prisma.pessoa.update.mock.calls[0][0].data.passwordHash;
       expect(await bcrypt.compare('NewPass456', newHash)).toBe(true);
@@ -70,7 +95,9 @@ describe('PessoasService', () => {
     it('falha com senha atual incorreta', async () => {
       const oldHash = await bcrypt.hash('OldPass123', 4);
       prisma.pessoa.findUnique.mockResolvedValue({ id: 6, type: 'USUARIO', passwordHash: oldHash });
-      await expect(service.changePassword(6, { senhaAtual: 'Errada', novaSenha: 'NewPass456' } as any)).rejects.toBeInstanceOf(UnauthorizedException);
+      await expect(
+        service.changePassword(1, 6, { senhaAtual: 'Errada', novaSenha: 'NewPass456' } as any),
+      ).rejects.toBeInstanceOf(UnauthorizedException);
     });
   });
 });

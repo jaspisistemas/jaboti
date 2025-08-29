@@ -1574,11 +1574,15 @@ h1 {
   left: 0;
   height: 100%;
   background: #3b82f6;
-  border-radius: 3px;
-  width: 0%;
-  transition: width 0.1s ease;
+  border-radius: 2px;
   min-width: 0%;
   display: block;
+  transition: width 0.1s ease;
+}
+
+/* Sem transição durante o arrasto */
+.audio-message .audio-progress-fill.dragging {
+  transition: none;
 }
 
 .audio-message .audio-progress-knob {
@@ -1604,6 +1608,11 @@ h1 {
 .audio-message:hover .audio-progress-knob,
 .audio-message.playing .audio-progress-knob {
   opacity: 1;
+}
+
+/* Knob sempre visível durante o arrasto */
+.audio-message .audio-progress-knob.dragging {
+  opacity: 1 !important;
 }
 
 .audio-message .audio-progress-knob:active {
@@ -1765,6 +1774,11 @@ h1 {
   transition: width 0.1s linear;
 }
 
+/* Sem transição durante o arrasto */
+.floating-audio-control .audio-progress-fill.dragging {
+  transition: none;
+}
+
 .floating-audio-control .audio-progress-knob {
   position: absolute;
   width: 14px;
@@ -1782,6 +1796,11 @@ h1 {
 }
 
 .floating-audio-control .audio-progress-bar:hover .audio-progress-knob {
+  opacity: 1 !important;
+}
+
+/* Knob sempre visível durante o arrasto */
+.floating-audio-control .audio-progress-knob.dragging {
   opacity: 1 !important;
 }
 
@@ -2208,6 +2227,15 @@ button:focus-visible {
 
 .floating-audio-control .audio-progress-bar:hover .audio-progress-knob {
   opacity: 1;
+}
+
+/* Knob sempre visível durante o arrasto */
+.floating-audio-control .audio-progress-knob.dragging {
+  opacity: 1 !important;
+}
+
+.floating-audio-control .audio-progress-knob:active {
+  cursor: grabbing;
 }
 
 .floating-audio-control .floating-controls-container {

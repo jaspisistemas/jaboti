@@ -1,0 +1,5 @@
+export enum DomParCod {
+  PESSOA = 'PESSOA',
+  EMPRESA = 'EMPRESA',
+  DEPARTAMENTO = 'DEPARTAMENTO',
+}

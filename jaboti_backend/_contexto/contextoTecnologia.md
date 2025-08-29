@@ -32,80 +32,79 @@ src/
 |-- websocket/ # Gateway websocket para eventos em tempo real
 |-- main.ts # Bootstrap do app
 
-
 ---
 
 ## 3. Funcionalidades e Endpoints Principais
 
 ### 3.1 Autenticação e Controle de Acesso (auth)
 
-- `POST /auth/login` — Login com retorno de JWT e refresh token  
-- `POST /auth/refresh` — Atualização do token JWT  
-- Middleware e guards para proteção de rotas e controle de roles (operador, supervisor, admin)  
-- Endpoint para listar empresas do usuário e selecionar empresa ativa na sessão  
+- `POST /auth/login` — Login com retorno de JWT e refresh token
+- `POST /auth/refresh` — Atualização do token JWT
+- Middleware e guards para proteção de rotas e controle de roles (operador, supervisor, admin)
+- Endpoint para listar empresas do usuário e selecionar empresa ativa na sessão
 
 ### 3.2 Gestão de Empresas (companies)
 
-- `GET /companies` — Listar empresas associadas ao usuário  
-- `GET /companies/:id` — Detalhes da empresa  
-- Relacionamento de atendentes às empresas  
+- `GET /companies` — Listar empresas associadas ao usuário
+- `GET /companies/:id` — Detalhes da empresa
+- Relacionamento de atendentes às empresas
 
 ### 3.3 Gestão de Departamentos (departments)
 
-- CRUD completo (nome, descrição, atendentes vinculados)  
-- `GET /departments?companyId=...` — Listar departamentos por empresa  
-- Associação de atendentes a departamentos  
+- CRUD completo (nome, descrição, atendentes vinculados)
+- `GET /departments?companyId=...` — Listar departamentos por empresa
+- Associação de atendentes a departamentos
 
 ### 3.4 Gestão de Atendentes (users)
 
-- CRUD atendentes (nome, email, senha, status online/offline, departamentos)  
-- Atualização em tempo real do status online/offline  
-- Listagem de atendentes ativos por empresa/departamento  
+- CRUD atendentes (nome, email, senha, status online/offline, departamentos)
+- Atualização em tempo real do status online/offline
+- Listagem de atendentes ativos por empresa/departamento
 
 ### 3.5 Gestão de Clientes (clients)
 
-- CRUD clientes (dados pessoais, contatos, documentos)  
-- Busca avançada (nome, documento, telefone, email)  
-- Histórico de interações (relacionado ao chat)  
-- Endpoints para carregar e gerenciar anotações  
+- CRUD clientes (dados pessoais, contatos, documentos)
+- Busca avançada (nome, documento, telefone, email)
+- Histórico de interações (relacionado ao chat)
+- Endpoints para carregar e gerenciar anotações
 
 ### 3.6 Atendimento (chats)
 
-- Listar atendimentos em categorias: Bot / Pendentes / Ativos  
-- Iniciar, encerrar e transferir atendimentos  
-- Envio/recebimento de mensagens via WebSocket + persistência  
-- Histórico pessoal do atendente  
+- Listar atendimentos em categorias: Bot / Pendentes / Ativos
+- Iniciar, encerrar e transferir atendimentos
+- Envio/recebimento de mensagens via WebSocket + persistência
+- Histórico pessoal do atendente
 
 ### 3.7 Notas (notes)
 
-- CRUD de anotações vinculadas a clientes e atendimentos  
-- Registro do autor e timestamps  
+- CRUD de anotações vinculadas a clientes e atendimentos
+- Registro do autor e timestamps
 
 ### 3.8 Integração e Configuração de Canais (integrations)
 
-- CRUD configurações para CloudAPI e EvolutionAPI por empresa  
-- Gestão de status e credenciais  
-- Logs e histórico de chamadas  
+- CRUD configurações para CloudAPI e EvolutionAPI por empresa
+- Gestão de status e credenciais
+- Logs e histórico de chamadas
 
 ### 3.9 Dashboard (dashboard)
 
-- Endpoints para indicadores:  
-  - Duração média dos atendimentos  
-  - Quantidade de atendimentos do dia  
-  - Custo acumulado CloudAPI (últimas 24h)  
-  - Tempo médio de espera  
-- Configuração e persistência de widgets e layout por usuário  
+- Endpoints para indicadores:
+  - Duração média dos atendimentos
+  - Quantidade de atendimentos do dia
+  - Custo acumulado CloudAPI (últimas 24h)
+  - Tempo médio de espera
+- Configuração e persistência de widgets e layout por usuário
 
 ---
 
 ## 4. Comunicação em Tempo Real (WebSocket)
 
-- NestJS Gateway com `@WebSocketGateway()` usando socket.io  
-- Eventos emitidos:  
-  - Mensagens novas no chat  
-  - Atualização status atendentes  
-  - Notificações de transferência  
-  - Atualizações de dashboard em tempo real  
+- NestJS Gateway com `@WebSocketGateway()` usando socket.io
+- Eventos emitidos:
+  - Mensagens novas no chat
+  - Atualização status atendentes
+  - Notificações de transferência
+  - Atualizações de dashboard em tempo real
 
 ---
 
@@ -290,6 +289,7 @@ model ExternalApiUsage {
 ```
 
 Notas:
+
 - Campos de auditoria adicionais (ex: updatedBy) podem ser incluídos depois.
 - Soft delete, se necessário, pode ser via campo `deletedAt` + filtros no repositório.
 - Para alta escala de mensagens, considerar particionamento futuro ou fila intermediária.
@@ -308,30 +308,210 @@ Notas:
 
 ---
 
-## 7. Exemplos de Endpoints REST
+## 7. Diretrizes de Banco de Dados e Constraints
 
-| Método | Rota                        | Descrição                      |
-|--------|-----------------------------|-------------------------------|
-| POST   | /auth/login                 | Autenticar e obter token       |
-| POST   | /auth/refresh               | Atualizar token JWT            |
-| GET    | /companies                  | Listar empresas do usuário     |
-| GET    | /companies/:id              | Detalhes da empresa            |
-| GET    | /departments?companyId=... | Listar departamentos           |
-| POST   | /departments                | Criar departamento             |
-| PUT    | /departments/:id            | Atualizar departamento         |
-| GET    | /users                      | Listar atendentes              |
-| POST   | /users                      | Criar atendente                |
-| PUT    | /users/:id                  | Atualizar atendente            |
-| GET    | /clients                    | Buscar clientes                |
-| POST   | /clients                    | Criar cliente                  |
-| GET    | /chats?category=active      | Listar chats ativos            |
-| POST   | /chats/:id/start            | Iniciar atendimento           |
-| POST   | /chats/:id/end              | Encerrar atendimento          |
-| POST   | /chats/:id/transfer         | Transferir atendimento        |
-| POST   | /notes                      | Criar anotação                |
-| GET    | /dashboard/metrics          | Dados para indicadores        |
-| GET    | /integrations/config        | Listar configurações canais   |
-| POST   | /integrations/config        | Criar/editar configuração     |
+### 7.1 Estratégia de Campos Nuláveis
+
+**Princípio**: Todo campo deve ser nulável por padrão, exceto quando há uma regra de negócio específica que exige obrigatoriedade.
+
+**Benefícios**:
+
+- Evita problemas de inserção quando dados não estão disponíveis
+- Permite flexibilidade na criação de registros
+- Facilita migrações e evolução do schema
+- Reduz erros de constraint violation
+
+**Exemplo de implementação**:
+
+```prisma
+model Pessoa {
+  id           Int      @id @default(autoincrement())
+  name         String   // Campo obrigatório por regra de negócio
+  email        String?  // Campo opcional
+  phone        String?  // Campo opcional
+  documento    String?  // Campo opcional
+  // ... outros campos
+}
+```
+
+### 7.2 Estratégia de Constraints
+
+**Constraints Permitidas**:
+
+- ✅ **Primary Key (PK)**: Para identificação única de registros
+- ✅ **Foreign Key (FK)**: Para integridade referencial entre tabelas
+- ✅ **Índices**: Para performance de consultas
+
+**Constraints NÃO Permitidas**:
+
+- ❌ **Unique Constraints**: Para validação de dados (ex: email único, username único)
+- ❌ **Check Constraints**: Para validação de regras de negócio
+- ❌ **Default Constraints**: Para valores padrão de aplicação
+
+**Justificativa**:
+
+- Validações devem ser feitas via código (DTOs, Services, Guards)
+- Código é mais flexível e permite regras de negócio complexas
+- Facilita testes e manutenção
+- Evita problemas de migração e evolução do schema
+
+### 7.3 Implementação de Validações
+
+**Nível de DTO**:
+
+```typescript
+export class CreatePessoaDto {
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @IsEmail()
+  @IsOptional()
+  email?: string;
+
+  @IsString()
+  @IsOptional()
+  phone?: string;
+}
+```
+
+**Nível de Service**:
+
+```typescript
+async create(dto: CreatePessoaDto) {
+  // Validação de email único (se necessário)
+  if (dto.email) {
+    const existing = await this.prisma.pessoa.findFirst({
+      where: { email: dto.email }
+    });
+    if (existing) {
+      throw new ConflictException('Email já cadastrado');
+    }
+  }
+
+  // Validação de username único (apenas para usuários)
+  if (dto.type === 'USUARIO' && dto.user) {
+    const existing = await this.prisma.pessoa.findFirst({
+      where: { user: dto.user }
+    });
+    if (existing) {
+      throw new ConflictException('Username já cadastrado');
+    }
+  }
+
+  // Criação do registro
+  return this.prisma.pessoa.create({ data: dto });
+}
+```
+
+### 7.4 Exemplo de Schema Sem Constraints de Validação
+
+```prisma
+model Pessoa {
+  empCod       Int      @map("EmpCod")
+  id           Int      @map("PesCod")
+  name         String   @map("PesNom")
+  email        String?  @map("PesEml") @db.VarChar(120)
+  user         String?  @map("PesUsr") @db.VarChar(30)
+  phone        String?  @map("PesFon") @db.VarChar(30)
+  documento    String?  @map("PesDoc") @db.VarChar(40)
+  type         String   @map("PesTip") @db.VarChar(20)
+  passwordHash String?  @map("PesSenha")
+  role         String   @default("OPERATOR") @db.VarChar(20)
+  active       Boolean  @default(true) @map("PesIsAtv")
+  online       Boolean  @default(false) @map("PesIsOnline")
+  
+  // Relacionamentos
+  company      Empresa  @relation(fields: [empCod], references: [id])
+  departments  DepartamentoPessoa[]
+  
+  // Chave primária composta (empCod + id)
+  @@id([empCod, id])
+  
+  // Índices para performance
+  @@index([type])
+  @@index([online])
+  @@index([email])
+  @@index([user])
+  @@index([empCod])
+}
+```
+
+### 7.5 Arquitetura Multiempresa com EmpCod
+
+**Princípio Fundamental**: Todas as tabelas do sistema incluem `empCod` como parte da chave primária, garantindo isolamento total de dados entre empresas.
+
+**Estrutura das Chaves Primárias**:
+- **`@@id([empCod, id])`** - Chave primária composta em todas as tabelas
+- **`empCod`** - Sempre o primeiro campo da chave primária
+- **`id`** - Identificador único dentro da empresa
+
+**Benefícios da Arquitetura**:
+- ✅ **Isolamento Total**: Dados de empresas nunca se misturam
+- ✅ **Segurança**: Usuário só acessa dados da empresa ativa
+- ✅ **Performance**: Índices otimizados por empresa
+- ✅ **Escalabilidade**: Sistema suporta múltiplas empresas
+- ✅ **Manutenibilidade**: Estrutura consistente em todas as tabelas
+
+**Exemplo de Uso**:
+```typescript
+// Usuário logado na empresa ID = 1
+const empCod = 1;
+
+// Criar pessoa na empresa 1
+await prisma.pessoa.create({
+  data: {
+    empCod: empCod,        // ← Sempre a empresa ativa
+    name: "João Silva",
+    type: "CLIENTE"
+  }
+});
+
+// Buscar pessoas da empresa 1
+const pessoas = await prisma.pessoa.findMany({
+  where: { empCod: empCod } // ← Sempre a empresa ativa
+});
+```
+
+**Tabelas com Arquitetura Multiempresa**:
+- `Pessoa` - `@@id([empCod, id])`
+- `Departamento` - `@@id([empCod, id])`
+- `Atendimento` - `@@id([empCod, id])`
+- `Mensagem` - `@@id([empCod, id])`
+- `Note` - `@@id([empCod, id])`
+- `IntegrationConfig` - `@@id([empCod, id])`
+- `RefreshToken` - `@@id([empCod, id])`
+- `ExternalApiUsage` - `@@id([empCod, id])`
+- `FileUpload` - `@@id([empCod, id])`
+- `EmpresaUser` - `@@id([empCod, userId])`
+- `DepartamentoPessoa` - `@@id([empCod, depCod, userId])`
+
+---
+
+## 8. Exemplos de Endpoints REST
+
+| Método | Rota                       | Descrição                   |
+| ------ | -------------------------- | --------------------------- |
+| POST   | /auth/login                | Autenticar e obter token    |
+| POST   | /auth/refresh              | Atualizar token JWT         |
+| GET    | /companies                 | Listar empresas do usuário  |
+| GET    | /companies/:id             | Detalhes da empresa         |
+| GET    | /departments?companyId=... | Listar departamentos        |
+| POST   | /departments               | Criar departamento          |
+| PUT    | /departments/:id           | Atualizar departamento      |
+| GET    | /users                     | Listar atendentes           |
+| POST   | /users                     | Criar atendente             |
+| PUT    | /users/:id                 | Atualizar atendente         |
+| GET    | /clients                   | Buscar clientes             |
+| POST   | /clients                   | Criar cliente               |
+| GET    | /chats?category=active     | Listar chats ativos         |
+| POST   | /chats/:id/start           | Iniciar atendimento         |
+| POST   | /chats/:id/end             | Encerrar atendimento        |
+| POST   | /chats/:id/transfer        | Transferir atendimento      |
+| POST   | /notes                     | Criar anotação              |
+| GET    | /dashboard/metrics         | Dados para indicadores      |
+| GET    | /integrations/config       | Listar configurações canais |
+| POST   | /integrations/config       | Criar/editar configuração   |
 
 ---
 

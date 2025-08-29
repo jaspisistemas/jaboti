@@ -1,5 +1,4 @@
-import { IsEmail, IsNotEmpty, IsOptional, IsString, Length, IsEnum, MinLength, MaxLength, IsDateString, IsBoolean } from 'class-validator';
-import { PessoaTipo, Genero, LeadStage, CanalPreferido } from '@prisma/client';
+import { IsEmail, IsNotEmpty, IsOptional, IsString, Length, MinLength, MaxLength, IsDateString, IsBoolean, IsIn } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class CreatePessoaDto {
@@ -31,9 +30,9 @@ export class CreatePessoaDto {
   @IsOptional() @IsDateString()
   dataNascimento?: string;
 
-  @ApiPropertyOptional({ enum: Genero, example: 'MASCULINO' })
-  @IsOptional() @IsEnum(Genero)
-  genero?: Genero;
+  @ApiPropertyOptional({ enum: ['MASCULINO', 'FEMININO', 'OUTRO', 'NAO_INFORMADO'], example: 'MASCULINO' })
+  @IsOptional() @IsIn(['MASCULINO', 'FEMININO', 'OUTRO', 'NAO_INFORMADO'])
+  genero?: string;
 
   @ApiPropertyOptional({ description: 'Nome curto para chat', example: 'João S.' })
   @IsOptional() @IsString() @Length(1,120)
@@ -70,18 +69,18 @@ export class CreatePessoaDto {
   @ApiPropertyOptional({ description: 'Origem do lead', example: 'Landing Page' })
   @IsOptional() @IsString() @Length(0,60)
   origem?: string;
-  @ApiPropertyOptional({ enum: LeadStage, description: 'Estágio do lead', example: 'LEAD' })
-  @IsOptional() @IsEnum(LeadStage)
-  etapa?: LeadStage;
+  @ApiPropertyOptional({ enum: ['LEAD', 'OPORTUNIDADE', 'CLIENTE', 'INATIVO'], description: 'Estágio do lead', example: 'LEAD' })
+  @IsOptional() @IsIn(['LEAD', 'OPORTUNIDADE', 'CLIENTE', 'INATIVO'])
+  etapa?: string;
   @ApiPropertyOptional({ description: 'Interesses (JSON)', example: ['produtoA','servicoB'] })
   @IsOptional()
   interesses?: any;
   @ApiPropertyOptional({ description: 'Tags', example: ['vip','trial'] })
   @IsOptional()
   tags?: string[];
-  @ApiPropertyOptional({ enum: CanalPreferido, description: 'Canal preferido de contato', example: 'WHATSAPP' })
-  @IsOptional() @IsEnum(CanalPreferido)
-  canalPreferido?: CanalPreferido;
+  @ApiPropertyOptional({ enum: ['WHATSAPP', 'EMAIL', 'TELEFONE', 'SMS', 'OUTRO'], description: 'Canal preferido de contato', example: 'WHATSAPP' })
+  @IsOptional() @IsIn(['WHATSAPP', 'EMAIL', 'TELEFONE', 'SMS', 'OUTRO'])
+  canalPreferido?: string;
   @ApiPropertyOptional({ description: 'Aceita comunicações de marketing', example: true })
   @IsOptional() @IsBoolean()
   consenteMarketing?: boolean;
@@ -92,9 +91,9 @@ export class CreatePessoaDto {
   @IsOptional() @IsString() @Length(0, 1000)
   observacoes?: string;
 
-  @ApiProperty({ enum: PessoaTipo, example: PessoaTipo.CLIENTE })
-  @IsEnum(PessoaTipo)
-  type!: PessoaTipo; // CLIENTE ou USUARIO
+  @ApiProperty({ enum: ['CLIENTE', 'USUARIO'], example: 'CLIENTE' })
+  @IsIn(['CLIENTE', 'USUARIO'])
+  type!: string; // CLIENTE ou USUARIO
 
   @ApiPropertyOptional({ description: 'Senha inicial (apenas para USUARIO). Se omitida: "changeme"', minLength: 6, example: 'SenhaForte123' })
   @IsOptional()

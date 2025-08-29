@@ -8,6 +8,7 @@
     "jaboti_backend"
   ],
   "scripts": {
+    "init": "node jaboti_backend/scripts/create-admin-user.js",
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
     "dev:frontend": "cd jaboti_frontend && npm run dev",
     "dev:backend": "cd jaboti_backend && npm run dev",

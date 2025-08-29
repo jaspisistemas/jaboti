@@ -17,10 +17,10 @@ export class DepartmentsController {
   constructor(private departments: DepartmentsService) {}
 
   @Get()
-  @ApiOkResponse({ description: 'Lista departamentos da empresa atual', schema: { example: [{ id: 1, nome: 'Atendimento', createdAt: '2025-01-01T12:00:00Z' }] } })
+  @ApiOkResponse({ description: 'Lista departamentos da empresa atual', schema: { example: [{ id: 1, nome: 'Atendimento', depDtaCri: '2025-01-01T12:00:00Z' }] } })
   async list(@CurrentCompanyId() companyId: number, @CurrentUser('sub') userId: number) {
     const list = await this.departments.list(companyId, userId);
-    return list.map(d => ({ id: d.id, nome: d.name, createdAt: d.createdAt, updatedAt: d.updatedAt }));
+    return list.map(d => ({ id: d.id, nome: d.depNom, depDtaCri: d.depDtaCri, depUltAtu: d.depUltAtu }));
   }
 
   @Post()
@@ -30,7 +30,7 @@ export class DepartmentsController {
     @Body() dto: CreateDepartmentDto,
   ) {
     const dep = await this.departments.create(companyId, userId, dto);
-    return { id: dep.id, nome: dep.name, createdAt: dep.createdAt, updatedAt: dep.updatedAt };
+    return { id: dep.id, nome: dep.depNom, depDtaCri: dep.depDtaCri, depUltAtu: dep.depUltAtu };
   }
 
   @Patch(':id')
@@ -41,7 +41,7 @@ export class DepartmentsController {
     @Body() dto: UpdateDepartmentDto,
   ) {
     const dep = await this.departments.update(companyId, id, userId, dto);
-    return { id: dep.id, nome: dep.name, createdAt: dep.createdAt, updatedAt: dep.updatedAt };
+    return { id: dep.id, nome: dep.depNom, depDtaCri: dep.depDtaCri, depUltAtu: dep.depUltAtu };
   }
 
   @Get(':id')
@@ -51,7 +51,7 @@ export class DepartmentsController {
     @Param('id', ParseIntPipe) id: number,
   ) {
     const dep = await this.departments.get(companyId, id, userId);
-    return { id: dep.id, nome: dep.name, createdAt: dep.createdAt, updatedAt: dep.updatedAt };
+    return { id: dep.id, nome: dep.depNom, depDtaCri: dep.depDtaCri, depUltAtu: dep.depUltAtu };
   }
 
   @Delete(':id')

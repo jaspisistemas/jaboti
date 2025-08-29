@@ -98,41 +98,95 @@ export const FloatingAudioControl: React.FC<FloatingAudioControlProps> = ({
   };
 
   const handleProgressDrag = (e: React.MouseEvent<HTMLDivElement>) => {
+    console.log('🎯 [Floating] handleProgressDrag iniciado');
     e.preventDefault();
     setIsDragging(true);
 
-    const handleMouseMove = (moveEvent: MouseEvent) => {
-      if (!isDragging || !audioElement || !duration) return;
+    // Armazenar referência para o elemento da barra de progresso
+    const progressBarElement = e.currentTarget;
+    console.log('🎯 [Floating] ProgressBar element:', progressBarElement);
 
-      const rect = e.currentTarget.getBoundingClientRect();
-      const percent = Math.max(0, Math.min(1, (moveEvent.clientX - rect.left) / rect.width));
-      const previewTime = percent * duration;
-      setCurrentTime(previewTime);
+    const handleMouseMove = (moveEvent: MouseEvent) => {
+      console.log('🎯 [Floating] Mouse move:', {
+        isDragging,
+        hasAudio: !!audioElement,
+        hasDuration: !!duration,
+        clientX: moveEvent.clientX,
+        rectLeft: progressBarElement.getBoundingClientRect().left,
+        rectWidth: progressBarElement.getBoundingClientRect().width,
+      });
+
+      if (!isDragging || !audioElement || !duration) {
+        console.log('🎯 [Floating] Condições não atendidas, retornando');
+        return;
+      }
+
+      try {
+        const rect = progressBarElement.getBoundingClientRect();
+        const percent = Math.max(0, Math.min(1, (moveEvent.clientX - rect.left) / rect.width));
+        const previewTime = percent * duration;
+
+        console.log('🎯 [Floating] Calculando preview:', {
+          percent: percent.toFixed(3),
+          previewTime: previewTime.toFixed(2),
+          duration: duration.toFixed(2),
+        });
+
+        // Atualizar visualmente em tempo real (sem modificar o áudio)
+        setCurrentTime(previewTime);
+        console.log('🎯 [Floating] Current time atualizado para:', previewTime.toFixed(2));
+      } catch (error) {
+        console.error('❌ [Floating] Erro no mouse move da barra de progresso flutuante:', error);
+        setIsDragging(false);
+      }
     };
 
     const handleMouseUp = (upEvent: MouseEvent) => {
+      console.log('🎯 [Floating] Mouse up, finalizando drag');
       setIsDragging(false);
 
-      if (audioElement && duration) {
-        const rect = e.currentTarget.getBoundingClientRect();
-        const percent = Math.max(0, Math.min(1, (upEvent.clientX - rect.left) / rect.width));
-        const newTime = percent * duration;
+      try {
+        if (audioElement && duration) {
+          // Calcular a posição final baseada na posição do mouse
+          const rect = progressBarElement.getBoundingClientRect();
+          const percent = Math.max(0, Math.min(1, (upEvent.clientX - rect.left) / rect.width));
+          const finalTime = percent * duration;
 
-        if (isFinite(newTime) && !isNaN(newTime)) {
-          audioElement.currentTime = newTime;
-          setCurrentTime(newTime);
+          console.log('🎯 [Floating] Posição final calculada:', {
+            percent: percent.toFixed(3),
+            finalTime: finalTime.toFixed(2),
+            duration: duration.toFixed(2),
+          });
+
+          // AGORA sim alterar o áudio para a posição final
+          if (isFinite(finalTime) && !isNaN(finalTime)) {
+            console.log('🎯 [Floating] Definindo currentTime do áudio para:', finalTime.toFixed(2));
+            audioElement.currentTime = finalTime;
+            setCurrentTime(finalTime);
+          }
         }
+      } catch (error) {
+        console.error('❌ [Floating] Erro no mouse up da barra de progresso flutuante:', error);
       }
 
       document.removeEventListener('mousemove', handleMouseMove);
       document.removeEventListener('mouseup', handleMouseUp);
+      console.log('🎯 [Floating] Event listeners removidos');
     };
 
+    console.log('🎯 [Floating] Adicionando event listeners para mousemove e mouseup');
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
   };
 
   const progressPercentage = duration > 0 ? (currentTime / duration) * 100 : 0;
+
+  console.log('🎯 [Floating] Progress percentage calculado:', {
+    isDragging,
+    currentTime: currentTime.toFixed(2),
+    duration: duration.toFixed(2),
+    progressPercentage: progressPercentage.toFixed(2),
+  });
 
   if (!isVisible || !audioElement) return null;
 
@@ -145,8 +199,17 @@ export const FloatingAudioControl: React.FC<FloatingAudioControlProps> = ({
         onClick={handleProgressClick}
         onMouseDown={handleProgressDrag}
       >
-        <div className="audio-progress-fill" style={{ width: `${progressPercentage}%` }} />
-        <div className="audio-progress-knob" style={{ left: `${progressPercentage}%` }} />
+        <div
+          className={`audio-progress-fill ${isDragging ? 'dragging' : ''}`}
+          style={{
+            width: `${progressPercentage}%`,
+            transition: isDragging ? 'none' : 'width 0.1s linear',
+          }}
+        />
+        <div
+          className={`audio-progress-knob ${isDragging ? 'dragging' : ''}`}
+          style={{ left: `${progressPercentage}%` }}
+        />
       </div>
 
       {/* Controles principais */}

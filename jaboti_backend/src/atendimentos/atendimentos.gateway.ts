@@ -31,7 +31,7 @@ export class AtendimentosGateway implements OnGatewayConnection, OnGatewayDiscon
       client.join(`user:${userId}`);
       if ((payload as any)?.activeCompanyId) client.join(`company:${(payload as any).activeCompanyId}`);
 
-      await this.prisma.pessoa.update({ where: { id: userId }, data: { online: true } }).catch(() => undefined);
+      await this.prisma.pessoa.update({ where: { empCod_id: { empCod: 1, id: userId } }, data: { online: true } }).catch(() => undefined);
       this.logger.debug(`User ${userId} connected (socket ${client.id})`);
     } catch (e: any) {
       this.kick(client, 'Auth error');
@@ -47,7 +47,7 @@ export class AtendimentosGateway implements OnGatewayConnection, OnGatewayDiscon
       set.delete(client.id);
       if (set.size === 0) {
         this.userToSockets.delete(userId);
-        await this.prisma.pessoa.update({ where: { id: userId }, data: { online: false } }).catch(() => undefined);
+        await this.prisma.pessoa.update({ where: { empCod_id: { empCod: 1, id: userId } }, data: { online: false } }).catch(() => undefined);
         this.logger.debug(`User ${userId} offline`);
       } else {
         this.userToSockets.set(userId, set);

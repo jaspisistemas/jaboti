@@ -7,41 +7,44 @@ import { UpdateDepartmentDto } from './dto/update-department.dto';
 export class DepartmentsService {
   constructor(private prisma: PrismaService) {}
 
-  private async ensureMembership(companyId: number, userId: number) {
-    const rel = await this.prisma.companyUser.findUnique({
-      where: { companyId_userId: { companyId, userId } },
+  private async ensureMembership(empCod: number, userId: number) {
+    const rel = await this.prisma.empresaUser.findUnique({
+      where: { empCod_userId: { empCod: empCod, userId } },
     });
     if (!rel) throw new ForbiddenException('User not in company');
   }
 
-  async list(companyId: number, userId: number) {
-    await this.ensureMembership(companyId, userId);
-    return this.prisma.department.findMany({ where: { companyId }, orderBy: { name: 'asc' } });
+  async list(empCod: number, userId: number) {
+    await this.ensureMembership(empCod, userId);
+    return this.prisma.departamento.findMany({ where: { empCod }, orderBy: { depNom: 'asc' } });
   }
 
-  async create(companyId: number, userId: number, dto: CreateDepartmentDto) {
-    await this.ensureMembership(companyId, userId);
-    return this.prisma.department.create({ data: { name: dto.nome, companyId } });
+  async create(empCod: number, userId: number, dto: CreateDepartmentDto) {
+    await this.ensureMembership(empCod, userId);
+    return this.prisma.departamento.create({ data: { depNom: dto.nome, empCod, id: 1 } });
   }
 
-  async update(companyId: number, id: number, userId: number, dto: UpdateDepartmentDto) {
-    await this.ensureMembership(companyId, userId);
-    const dep = await this.prisma.department.findFirst({ where: { id, companyId } });
+  async update(empCod: number, id: number, userId: number, dto: UpdateDepartmentDto) {
+    await this.ensureMembership(empCod, userId);
+    const dep = await this.prisma.departamento.findFirst({ where: { id, empCod } });
     if (!dep) throw new NotFoundException('Department not found');
-    return this.prisma.department.update({ where: { id }, data: { name: dto.nome ?? dep.name } });
+    return this.prisma.departamento.update({
+      where: { empCod_id: { empCod: empCod, id } },
+      data: { depNom: dto.nome ?? dep.depNom },
+    });
   }
 
-  async remove(companyId: number, id: number, userId: number) {
-    await this.ensureMembership(companyId, userId);
-    const dep = await this.prisma.department.findFirst({ where: { id, companyId } });
+  async remove(empCod: number, id: number, userId: number) {
+    await this.ensureMembership(empCod, userId);
+    const dep = await this.prisma.departamento.findFirst({ where: { id, empCod } });
     if (!dep) throw new NotFoundException('Department not found');
-    await this.prisma.department.delete({ where: { id } });
+    await this.prisma.departamento.delete({ where: { empCod_id: { empCod: empCod, id } } });
     return { deleted: true };
   }
 
-  async get(companyId: number, id: number, userId: number) {
-    await this.ensureMembership(companyId, userId);
-    const dep = await this.prisma.department.findFirst({ where: { id, companyId } });
+  async get(empCod: number, id: number, userId: number) {
+    await this.ensureMembership(empCod, userId);
+    const dep = await this.prisma.departamento.findFirst({ where: { id, empCod } });
     if (!dep) throw new NotFoundException('Department not found');
     return dep;
   }

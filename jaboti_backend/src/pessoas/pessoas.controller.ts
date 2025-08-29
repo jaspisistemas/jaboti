@@ -60,8 +60,8 @@ export class PessoasController {
   }
 
   @Post('change-password')
-  changePassword(@CurrentUser('sub') userId: number, @Body() dto: ChangePasswordDto) {
-    return this.service.changePassword(userId, dto);
+  changePassword(@CurrentCompanyId() companyId: number, @CurrentUser('sub') userId: number, @Body() dto: ChangePasswordDto) {
+    return this.service.changePassword(companyId, userId, dto);
   }
 
   private safe = (p: any) => {
